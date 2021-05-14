@@ -4,14 +4,18 @@ public class Shell {
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
 
+        System.out.print("> ");
         String cmd = input.nextLine();
 
-        while (cmd != "exit") {
+        while (!cmd.equals("exit")) {
             switch(cmd) {
                 case "help":
                 printHelp();
                 break;
+                case "login":
+                break;
             }
+            System.out.print("> ");
             cmd = input.nextLine();
         }
 
@@ -19,6 +23,8 @@ public class Shell {
     }
 
     public static void printHelp() {
-        System.out.println("list of commands");
+        System.out.println("--- Available Commands ---");
+        System.out.println("login [username] [password]");
     }
+    
 }
