@@ -3,33 +3,127 @@ package backend;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.ResultSet;
+import java.sql.DatabaseMetaData;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+import java.util.List;
+import java.util.ArrayList;
 
 public class Controller {
-    public Controller() {
-        dbConnect();
-    }
+    private Connection conn;
+    private AuthManager authManager;
+    private boolean isLoggedIn;
 
-    public static void dbConnect() {
-        Connection conn = null;
-        System.out.println("reached");
+    public Controller() {
+        isLoggedIn = false;
+
+        this.conn = null;
         try {
             // db parameters
             String url = "jdbc:sqlite:/home/kjuu/classes/cmpsc174a/cs174a-stock-project/project/db/datastore.db";
             // create a connection to the database
-            conn = DriverManager.getConnection(url);
+            this.conn = DriverManager.getConnection(url);
             
             System.out.println("Connection to SQLite has been established.");
+            this.authManager = new AuthManager(this.conn);
             
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+        }
+    }
+    
+    public boolean authenticateTrader(String username, String password) {
+        boolean isValidUser = authManager.authenticateTrader(username, password);
+        if (isValidUser) {
+            isLoggedIn = true;
+            System.out.println("Welcome " + username);
+        } else {
+            System.out.println("Invalid user"); 
+        }
+        
+        return isValidUser;
+    }
+
+    public boolean logout() {
+        if (isLoggedIn) {
+            isLoggedIn = false;
+            return true;
+        }
+        
+        return false;
+    }
+    
+    public void resetDatastore() {
+        String url = "jdbc:sqlite:/home/kjuu/classes/cmpsc174a/cs174a-stock-project/project/db/datastore.db";
+        String[] tablesToClear = new String[] {"Accrue_Interest", "Customer", "Deposit", "Owns_Stock", "Stock_Account", "Buy", "Movie", 
+                "Movie_Contract", "Stock", "Withdraw", "Sell", "Stock_Profile" };
+
+        String transaction = "BEGIN TRANSACTION;\n";
+
+        for (int i = 0; i < tablesToClear.length; i++) {
+            final String QUERY = "DELETE FROM " + tablesToClear[i] + ";\n";
+            transaction += QUERY;
+        }
+
+        transaction += "END TRANSACTION;";
+
+        try {
+            Statement stmt = this.conn.createStatement();
+            stmt.executeUpdate(transaction);
+
+            System.out.println("Successfully cleared all tables!");
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            System.out.println(e.getErrorCode()); 
+        }
+
+        try {
+            // Read CSV file
+            Scanner sc = new Scanner(new File("/home/kjuu/classes/cmpsc174a/cs174a-stock-project/project/db/data.csv"));
+            sc.useDelimiter("\n");
+            while (sc.hasNext()) {
+                String entry = sc.next();
+                String[] tokens = entry.split(",");
+                String tableName = tokens[0];
+
+                List<String> tokensWrapped = new ArrayList<String>();
+                for (int i = 1; i < tokens.length; i++) {
+                    boolean isNumeric = tokens[i].chars().allMatch( Character::isDigit );
+                    if (isNumeric) {
+                        tokensWrapped.add(tokens[i]);
+                    } else {
+                        tokensWrapped.add("\"" + tokens[i] + "\"");
+                    }
+                }
+                
+                final String QUERY = "INSERT INTO " + tableName + " VALUES(" + String.join(",", tokensWrapped.toArray(new String[tokensWrapped.size()])) + ");";
+                
+                Statement stmt = this.conn.createStatement();
+                stmt.executeUpdate(QUERY);
+                
+                System.out.println("[SUCCESSFUL]: " + QUERY);
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+                    System.out.println(e.getErrorCode()); 
+        } catch (FileNotFoundException f) {
+            System.out.println(f.getMessage());
         } finally {
             try {
-                if (conn != null) {
-                    conn.close();
+                if (this.conn != null) {
+                    this.conn.close();
                 }
             } catch (SQLException ex) {
                 System.out.println(ex.getMessage());
             }
         }
+    }
+
+    public static boolean isAlpha(String str) {
+        return str.matches("[a-zA-Z]+");
     }
 }

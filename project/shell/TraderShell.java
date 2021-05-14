@@ -4,9 +4,11 @@ import java.util.Scanner;
 import backend.*;
 
 public class TraderShell {
+    private static Scanner input;
+    private static Controller controller;
     public static void main(String[] args) {
-        Controller controller = new Controller();
-        Scanner input = new Scanner(System.in);
+        controller = new Controller();
+        input = new Scanner(System.in);
 
         System.out.print("> ");
         String cmd = input.nextLine();
@@ -16,6 +18,17 @@ public class TraderShell {
                 case "help":
                 printHelp();
                 break;
+                case "login":
+                promptLogin();
+                break;
+                case "logout":
+                logout();
+                break;
+                case "reset":
+                controller.resetDatastore();
+                break;
+
+
             }
             System.out.print("> ");
             cmd = input.nextLine();
@@ -23,8 +36,23 @@ public class TraderShell {
 
         input.close();
     }
-    
-    // CLASSPATH=/home/ucsb/cs174a/cs174a-stock-project; export CLASSPATH
+
+    public static void promptLogin() {
+        System.out.print("Username: "); 
+        String user = input.nextLine();
+        System.out.print("Password: ");
+        String pass = input.nextLine();
+        controller.authenticateTrader(user, pass);
+    }
+
+    public static void logout() {
+        boolean res = controller.logout();
+        if (!res) {
+            System.out.println("You are not logged in to any account.");
+        } else {
+            System.out.println("You have been logged out.");
+        }
+    }
 
     public static void printHelp() {
         System.out.println("--- Available Commands ---");
