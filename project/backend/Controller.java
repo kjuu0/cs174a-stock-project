@@ -1,4 +1,4 @@
-package project.backend;
+package backend;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -14,7 +14,7 @@ public class Controller {
         System.out.println("reached");
         try {
             // db parameters
-            String url = "jdbc:sqlite:/home/htransteven/ucsb/cs174a/cs174a-stock-project/project/db/datastore.db";
+            String url = "jdbc:sqlite:/home/kjuu/classes/cmpsc174a/cs174a-stock-project/project/db/datastore.db";
             // create a connection to the database
             conn = DriverManager.getConnection(url);
             

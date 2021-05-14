@@ -1,4 +1,4 @@
-package project.backend;
+package backend;
 
 public class AuthManager {
     public AuthManager() {
