@@ -7,13 +7,10 @@ import java.sql.Statement;
 
 public class AuthManager {
     private Connection conn;
+    private boolean isAuthenticated;
+    private boolean isAdmin;
 
     public AuthManager(Connection c) {
-        try {
-            System.out.println(c.isValid(10));
-        } catch (SQLException e) {
-            System.out.println(e.getMessage()); 
-        }
         this.conn = c;
     }
 
@@ -30,6 +27,7 @@ public class AuthManager {
                 return false;
             } else {
                 System.out.println("Found user with username " + username);
+                this.isAuthenticated = true;
                 return true;
             }
         } catch (SQLException e) {
@@ -37,7 +35,6 @@ public class AuthManager {
         }
 
         return false;
-
     }
 
 }

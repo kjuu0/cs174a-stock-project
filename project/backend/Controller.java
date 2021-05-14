@@ -16,6 +16,7 @@ import java.util.ArrayList;
 public class Controller {
     private Connection conn;
     private AuthManager authManager;
+    private UserManager userManager;
     private boolean isLoggedIn;
 
     public Controller() {
@@ -30,6 +31,7 @@ public class Controller {
             
             System.out.println("Connection to SQLite has been established.");
             this.authManager = new AuthManager(this.conn);
+            this.userManager = new UserManager(this.conn);
             
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -39,8 +41,8 @@ public class Controller {
     public boolean authenticateTrader(String username, String password) {
         boolean isValidUser = authManager.authenticateTrader(username, password);
         if (isValidUser) {
-            isLoggedIn = true;
             System.out.println("Welcome " + username);
+            isLoggedIn = true;
         } else {
             System.out.println("Invalid user"); 
         }
@@ -55,6 +57,14 @@ public class Controller {
         }
         
         return false;
+    }
+
+    public boolean createTrader(Customer c) {
+        boolean res = this.userManager.createTrader(c);
+        if (res) {
+            isLoggedIn = true;
+        }
+        return res;
     }
     
     public void resetDatastore() {
@@ -112,15 +122,7 @@ public class Controller {
                     System.out.println(e.getErrorCode()); 
         } catch (FileNotFoundException f) {
             System.out.println(f.getMessage());
-        } finally {
-            try {
-                if (this.conn != null) {
-                    this.conn.close();
-                }
-            } catch (SQLException ex) {
-                System.out.println(ex.getMessage());
-            }
-        }
+        } 
     }
 
     public static boolean isAlpha(String str) {

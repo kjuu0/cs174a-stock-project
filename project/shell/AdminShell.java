@@ -2,7 +2,7 @@ package shell;
 
 import java.util.Scanner;
 
-public class Shell {
+public class AdminShell {
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
 
