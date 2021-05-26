@@ -25,7 +25,7 @@ public class Controller {
         this.conn = null;
         try {
             // db parameters
-            String url = "jdbc:sqlite:/home/kjuu/classes/cmpsc174a/cs174a-stock-project/project/db/datastore.db";
+            String url = "jdbc:sqlite:/home/htransteven/ucsb/cs174a/cs174a-stock-project/project/db/datastore.db";
             // create a connection to the database
             this.conn = DriverManager.getConnection(url);
             
@@ -68,8 +68,8 @@ public class Controller {
     }
     
     public void resetDatastore() {
-        String url = "jdbc:sqlite:/home/kjuu/classes/cmpsc174a/cs174a-stock-project/project/db/datastore.db";
-        String[] tablesToClear = new String[] {"Accrue_Interest", "Customer", "Deposit", "Owns_Stock", "Stock_Account", "Buy", "Movie", 
+        String url = "jdbc:sqlite:/home/htransteven/ucsb/cs174a/cs174a-stock-project/project/db/datastore.db";
+        String[] tablesToClear = new String[] {"Sys_Info", "Accrue_Interest", "Customer", "Deposit", "Owns_Stock", "Market_Account", "Buy", "Movie", 
                 "Movie_Contract", "Stock", "Withdraw", "Sell", "Stock_Profile" };
 
         String transaction = "BEGIN TRANSACTION;\n";
@@ -93,7 +93,7 @@ public class Controller {
 
         try {
             // Read CSV file
-            Scanner sc = new Scanner(new File("/home/kjuu/classes/cmpsc174a/cs174a-stock-project/project/db/data.csv"));
+            Scanner sc = new Scanner(new File("/home/htransteven/ucsb/cs174a/cs174a-stock-project/project/db/data.csv"));
             sc.useDelimiter("\n");
             while (sc.hasNext()) {
                 String entry = sc.next();

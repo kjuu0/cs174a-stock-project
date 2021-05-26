@@ -1,41 +1,56 @@
-Customer,John Admin,admin,secret,Stock Company SB,CA,(805)6374632,admin@stock.com,1000,606-60-6060,000,0
-Customer,Alfred Hitchcock,alfred,hi,6667 El Colegio #40 SB,CA,(805)2574499,alfred@hotmail.com,1022,606-76-7900,001,10000
-Customer,Billy Clinton,billy,cl,5777 Hollister SB,CA,(805)5629999,billy@yahoo.com,3045,606-76-7903,002,100000
-Customer,Cindy Laugher,cindy,la,7000 Hollister SB,CA,(805)6930011,cindy@hotmail.com,2034,606-70-7900,003,50000
-Customer,David Copperfill,david,co,1357 State St SB,CA,(805)8240011,david@yahoo.com,4093,506-78-7900,004,45000
-Customer,Elizabeth Sailor,sailor,sa,4321 State St SB,CA,(805)1234567,sailor@hotmail.com,1234,436-76-7900,005,200000
-Customer,George Brush,brush,br,5346 Foothill Av,CA,(805)1357999,george@hotmail.com,8956,632-45-7900,006,5000
-Customer,Ivan Stock,ivan,st,1235 Johnson Dr,NJ,(805)3223243,ivan@yahoo.com,2341,609-23-7900,007,2000
-Customer,Joe Pepsi,joe,pe,3210 State St,CA,(805)5668123,pepsi@pepsi.com,0456,646-76-3430,008,10000
-Customer,Magic Jordon,magic,jo,3852 Court Rd,NJ,(805)4535539,jordon@jordon.org,3455,646-76-8843,009,130200
-Customer,Olive Stoner,olive,st,6689 El Colegio #151,CA,(805)2574499,olive@yahoo.com,1123,645-34-7900,010,35000
-Customer,Frank Olson,frank,ol,6910 Whittier Dr,CA,(805)3456789,frank@gmail.com,3306,345-23-2134,011,30500
-Owns_Stock,1022,SKB,3/16/2013,100
-Owns_Stock,3045,SMD,3/16/2013,500
-Owns_Stock,3045,STC,3/16/2013,100
-Owns_Stock,2034,STC,3/16/2013,250
-Owns_Stock,4093,SKB,3/16/2013,100
-Owns_Stock,4093,SMD,3/16/2013,500
-Owns_Stock,4093,STC,3/16/2013,50
-Owns_Stock,1234,SMD,3/16/2013,1000
-Owns_Stock,8956,SKB,3/16/2013,100
-Owns_Stock,2341,SMD,3/16/2013,300
-Owns_Stock,0456,SKB,3/16/2013,500
-Owns_Stock,0456,STC,3/16/2013,100
-Owns_Stock,0456,SMD,3/16/2013,200
-Owns_Stock,3455,SKB,3/16/2013,1000
-Owns_Stock,1123,SKB,3/16/2013,100
-Owns_Stock,1123,SMD,3/16/2013,100
-Owns_Stock,1123,STC,3/16/2013,100
-Owns_Stock,3306,SKB,3/16/2013,100
-Owns_Stock,3306,STC,3/16/2013,200
-Owns_Stock,3306,SMD,3/16/2013,100
-Stock,SKB,3/16/2013,4000
-Stock,SMD,3/16/2013,7100
-Stock,STC,3/16/2013,3250
-Movie,L.A. Confidential
-Movie,A Perfect Murder
-Movie,Jerry Maguire
+Sys_Info,0.1,2013/03/16,1
+Customer,John Admin,admin,secret,Stock Company SB,CA,(805)6374632,admin@stock.com,1000,606-60-6060
+Customer,Alfred Hitchcock,alfred,hi,6667 El Colegio #40 SB,CA,(805)2574499,alfred@hotmail.com,1022,606-76-7900
+Customer,Billy Clinton,billy,cl,5777 Hollister SB,CA,(805)5629999,billy@yahoo.com,3045,606-76-7903
+Customer,Cindy Laugher,cindy,la,7000 Hollister SB,CA,(805)6930011,cindy@hotmail.com,2034,606-70-7900
+Customer,David Copperfill,david,co,1357 State St SB,CA,(805)8240011,david@yahoo.com,4093,506-78-7900
+Customer,Elizabeth Sailor,sailor,sa,4321 State St SB,CA,(805)1234567,sailor@hotmail.com,1234,436-76-7900
+Customer,George Brush,brush,br,5346 Foothill Av,CA,(805)1357999,george@hotmail.com,8956,632-45-7900
+Customer,Ivan Stock,ivan,st,1235 Johnson Dr,NJ,(805)3223243,ivan@yahoo.com,2341,609-23-7900
+Customer,Joe Pepsi,joe,pe,3210 State St,CA,(805)5668123,pepsi@pepsi.com,0456,646-76-3430
+Customer,Magic Jordon,magic,jo,3852 Court Rd,NJ,(805)4535539,jordon@jordon.org,3455,646-76-8843
+Customer,Olive Stoner,olive,st,6689 El Colegio #151,CA,(805)2574499,olive@yahoo.com,1123,645-34-7900
+Customer,Frank Olson,frank,ol,6910 Whittier Dr,CA,(805)3456789,frank@gmail.com,3306,345-23-2134
+Market_Account,1022,1000000
+Market_Account,3045,10000000
+Market_Account,2034,5000000
+Market_Account,4093,4500000
+Market_Account,1234,20000000
+Market_Account,8956,500000
+Market_Account,2341,200000
+Market_Account,0456,1000000
+Market_Account,3455,13020000
+Market_Account,1123,3500000
+Market_Account,3306,3050000
+Owns_Stock,1022,SKB,100,4000
+Owns_Stock,3045,SMD,500,7100
+Owns_Stock,3045,STC,100,3250
+Owns_Stock,2034,STC,250,3250
+Owns_Stock,4093,SKB,100,4000
+Owns_Stock,4093,SMD,500,7100
+Owns_Stock,4093,STC,50,3250
+Owns_Stock,1234,SMD,1000,7100
+Owns_Stock,8956,SKB,100,4000
+Owns_Stock,2341,SMD,300,7100
+Owns_Stock,0456,SKB,500,4000
+Owns_Stock,0456,STC,100,3250
+Owns_Stock,0456,SMD,200,7100
+Owns_Stock,3455,SKB,1000,4000
+Owns_Stock,1123,SKB,100,4000
+Owns_Stock,1123,SMD,100,7100
+Owns_Stock,1123,STC,100,3250
+Owns_Stock,3306,SKB,100,4000
+Owns_Stock,3306,STC,200,3250
+Owns_Stock,3306,SMD,100,7100
+Stock,SKB,2013/03/16,4000
+Stock,SMD,2013/03/16,7100
+Stock,STC,2013/03/16,3250
+Stock_Profile,SKB,Kim Basinger,1958/12/08
+Stock_Profile,SMD,Michael Douglas,1944/09/25
+Stock_Profile,STC,Tom Cruise,1962/07/03
+Movie,2606,L.A. Confidential,1997,Action,7.8,842
+Movie,0421,A Perfect Murder,1998,Thriller,8.4,1230
+Movie,7612,Jerry Maguire,1996,Comedy,6.3,183
 Movie_Contract,SKB,L.A. Confidential,1997,5000000,Actor
 Movie_Contract,SMD,L.A. Confidential,1998,10000000,Actor
 Movie_Contract,STC,Jerry Maguire,1996,5000000,Actor

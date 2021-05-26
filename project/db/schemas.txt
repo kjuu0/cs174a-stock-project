@@ -1,0 +1,90 @@
+CREATE TABLE Sys_Info (
+    interest_rate REAL,
+    date CHAR(10),
+    market_status INTEGER
+);
+
+CREATE TABLE Customer (
+    name CHAR(255),
+    username CHAR(255) UNIQUE,
+    password CHAR(255),
+    address CHAR(255),
+    state CHAR(2),
+    phone CHAR(10),
+    email CHAR(255),
+    tax_id INTEGER,
+    ssn CHAR(11),
+    PRIMARY KEY (tax_id)
+);
+
+CREATE TABLE Market_Account (
+    tax_id INTEGER,
+    balance INTEGER CHECK (balance >= 0),
+    PRIMARY KEY (tax_id),
+    FOREIGN KEY (tax_id) REFERENCES Customer ON DELETE CASCADE
+);
+
+CREATE TABLE Owns_Stock (
+    tax_id INTEGER,
+    stock_symbol CHAR(4),
+    shares INTEGER,
+    price_per_share CHAR(10),
+    PRIMARY KEY (tax_id, stock_symbol, price_per_share),
+    FOREIGN KEY (tax_id) REFERENCES Customer ON DELETE CASCADE
+);
+
+CREATE TABLE Accrue_Interest (
+    transaction_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    transaction_date CHAR(10),
+    tax_id INTEGER,
+    amount INTEGER,
+    interest_rate INTEGER,
+    FOREIGN KEY (tax_id) REFERENCES Customer
+);
+
+CREATE TABLE Buy (
+    transaction_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    transaction_date CHAR(10),
+    tax_id INTEGER,
+    stock_symbol CHAR(4),
+    shares INTEGER,
+    price_per_share INTEGER,
+    FOREIGN KEY (tax_id) REFERENCES Customer,
+    FOREIGN KEY (stock_symbol, transaction_date, price_per_share) REFERENCES Stock(stock_symbol, date, price)
+);
+
+CREATE TABLE Sell (
+    transaction_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    transaction_date CHAR(10),
+    tax_id INTEGER,
+    stock_symbol CHAR(4),
+    shares INTEGER,
+    price_per_share_bought INTEGER,
+    price_per_share_sold INTEGER,
+    FOREIGN KEY (tax_id) REFERENCES Customer,
+    FOREIGN KEY (price_per_share_bought) REFERENCES Owns_Stock(price_per_share)
+    FOREIGN KEY (stock_symbol, transaction_date, price_per_share_sold) REFERENCES Stock(stock_symbol, date, price)
+);
+
+CREATE TABLE Deposit (
+    transaction_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    transaction_date CHAR(10),
+    tax_id INTEGER,
+    amount INTEGER,
+    FOREIGN KEY (tax_id) REFERENCES Customer
+);
+
+CREATE TABLE Withdraw (
+    transaction_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    transaction_date CHAR(10),
+    tax_id INTEGER,
+    amount INTEGER,
+    FOREIGN KEY (tax_id) REFERENCES Customer
+);
+
+CREATE TABLE Stock_Profile (
+    stock_symbol CHAR(4),
+    name CHAR(255),
+    birthdate CHAR(10),
+    PRIMARY KEY(stock_symbol)
+);
