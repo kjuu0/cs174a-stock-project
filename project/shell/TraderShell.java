@@ -1,6 +1,8 @@
 package shell;
 
 import java.util.Scanner;
+import java.util.List;
+
 import backend.*;
 
 public class TraderShell {
@@ -30,6 +32,9 @@ public class TraderShell {
                 case "reset":
                 controller.resetDatastore();
                 break;
+                case "buy":
+                promptBuy();
+                break;
 
 
             }
@@ -38,6 +43,60 @@ public class TraderShell {
         }
 
         input.close();
+    }
+
+    public static void promptBuy() {
+        if (!controller.isLoggedIn()) {
+            System.out.println("You must be logged in to make a purchase");
+            return;
+        } 
+        if (!controller.isMarketOpen()) {
+            System.out.println("Market is closed, no purchases allowed"); 
+            return;
+        }
+
+        System.out.println("Currently available stocks:");
+        List<Stock> availableStocks = controller.getAvailableStocks(); 
+        if (availableStocks.isEmpty()) {
+            System.out.println("No stocks are available"); 
+            return;
+        }
+
+        for (Stock s : availableStocks) {
+            System.out.println(s); 
+        }
+        
+        System.out.print("Enter the stock symbol to purchase: ");
+        String symbol = input.nextLine();
+       
+        // For demo purposes assuming that there are not that many
+        // stocks, we can linearly search; in the future we can modify
+        // availableStocks to return a HashSet for a faster check
+        boolean found = false;
+        Stock tbp = null;
+        for (Stock s : availableStocks) {
+            if (s.getSymbol().equals(symbol)) {
+                found = true;
+                tbp = s;
+                break; 
+            }
+        }
+        
+        if (tbp == null) {
+            System.out.println("Invalid stock symbol"); 
+            return;
+        }
+        
+        System.out.print("Enter the number of shares to purchase: ");
+        int numShares = input.nextInt();
+        
+        boolean res = controller.purchase(tbp, numShares);
+        if (res) {
+            System.out.println("Purchase successful"); 
+        } else {
+            System.out.println("Error occurred while attempting to purchase"); 
+        }
+        
     }
 
     public static void promptSignup() {

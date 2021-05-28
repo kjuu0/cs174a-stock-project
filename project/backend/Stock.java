@@ -21,6 +21,18 @@ public class Stock {
         return s;
     }
     
+    public String getSymbol() {
+        return symbol; 
+    }
+    
+    public int getPrice() {
+        return price; 
+    }
+    
+    public String getDate() {
+        return date; 
+    }
+    
     public void setSymbol(String s) {
         symbol = s;
     }
@@ -31,5 +43,10 @@ public class Stock {
     
     public void setPrice(int p) {
         price = p; 
+    }
+    
+    public String toString() {
+        int pInt = price / 100, pDec = price % 100;
+        return String.format("%s: $%d.%02d", symbol, pInt, pDec);
     }
 }

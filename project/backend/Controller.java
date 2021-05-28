@@ -17,6 +17,10 @@ public class Controller {
     private Connection conn;
     private AuthManager authManager;
     private UserManager userManager;
+    private SysManager sysManager;
+    private StockManager stockManager;
+    private MarketAccountManager maManager;
+    private StockAccountManager saManager;
     private boolean isLoggedIn;
     private Customer user;
 
@@ -34,6 +38,10 @@ public class Controller {
             System.out.println("Connection to SQLite has been established.");
             this.authManager = new AuthManager(this.conn);
             this.userManager = new UserManager(this.conn);
+            this.sysManager = new SysManager(this.conn);
+            this.stockManager = new StockManager(this.conn);
+            this.maManager = new MarketAccountManager(this.conn);
+            this.saManager = new StockAccountManager(this.conn);
             
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -52,23 +60,78 @@ public class Controller {
         return user != null;
     }
 
+    public boolean isLoggedIn() {
+        return isLoggedIn;
+    }
+
     public boolean logout() {
         if (isLoggedIn) {
             isLoggedIn = false;
-	    user = null;
+            user = null;
             return true;
         }
         
         return false;
+    }
+    
+    public boolean purchase(Stock stock, int shares) {
+        final int totalPrice = stock.getPrice() * shares + 2000; // $20 commission fee
+        final int customerBalance = maManager.getBalance(user.taxid);
+        final int finalBalance = customerBalance - totalPrice;
+        
+        if (finalBalance < 0) {
+            System.out.println("User has insufficient funds to make the purchase"); 
+            return false;
+        }
+
+        final String UPDATE_BUY = "INSERT INTO Buy"
+            + "(transaction_date, tax_id, stock_symbol, shares, price_per_share) "
+            + "VALUES (\"" + stock.getDate() + "\", " + user.taxid + ", \"" + stock.getSymbol() + "\", " + shares + ", " + stock.getPrice() + ")";
+        final String UPDATE_MARKET = "UPDATE Market_Account SET balance = " + finalBalance + " WHERE tax_id = " + user.taxid;
+        
+        String UPDATE_OWNS;
+        final int sharesOwned = saManager.getSharesOwnedAtPrice(user.taxid, stock.getSymbol(), stock.getPrice());
+       
+        if (sharesOwned == 0) {
+            UPDATE_OWNS = "INSERT INTO Owns_Stock VALUES (" + user.taxid + ", \"" + stock.getSymbol() + "\", " + shares + ", " + stock.getPrice() + ")";
+        } else {
+            UPDATE_OWNS = "UPDATE Owns_Stock SET shares=" + (sharesOwned + shares) + " WHERE tax_id=" + user.taxid + " AND stock_symbol=\"" + stock.getSymbol() + "\" AND price_per_share=" + stock.getPrice(); 
+        }
+
+        try {
+            
+            Statement stmt = conn.createStatement();
+            stmt.addBatch(UPDATE_BUY);
+            stmt.addBatch(UPDATE_MARKET);
+            stmt.addBatch(UPDATE_OWNS);
+            stmt.executeBatch();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage()); 
+            return false;
+        }
+
+        return true;
     }
 
     public boolean createTrader(Customer c) {
         boolean res = this.userManager.createTrader(c);
         if (res) {
             isLoggedIn = true;
-	    user = c;
+            user = c;
         }
         return res;
+    }
+    
+    public boolean isMarketOpen() {
+        return sysManager.isMarketOpen(); 
+    }
+    
+    public String getDate() {
+        return sysManager.getDate(); 
+    }
+    
+    public List<Stock> getAvailableStocks() {
+        return stockManager.getStocksForDate(sysManager.getDate());
     }
     
     public void resetDatastore() {
