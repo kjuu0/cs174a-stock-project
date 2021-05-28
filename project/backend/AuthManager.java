@@ -14,8 +14,8 @@ public class AuthManager {
         this.conn = c;
     }
 
-    public boolean authenticateTrader(String username, String password) {
-        final String QUERY = "SELECT username, password FROM Customer WHERE username=\"" + username +
+    public Customer authenticateTrader(String username, String password) {
+        final String QUERY = "SELECT * FROM Customer WHERE username=\"" + username +
         "\" AND password=\"" + password + "\"";
         
         try {
@@ -24,17 +24,17 @@ public class AuthManager {
 
             if (!rs.next()) {
                 System.out.println("Did not find user"); 
-                return false;
+                return null;
             } else {
                 System.out.println("Found user with username " + username);
                 this.isAuthenticated = true;
-                return true;
+                return new Customer(rs);
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage()); 
         }
 
-        return false;
+        return null;
     }
 
 }

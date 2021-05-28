@@ -18,14 +18,16 @@ public class Controller {
     private AuthManager authManager;
     private UserManager userManager;
     private boolean isLoggedIn;
+    private Customer user;
 
     public Controller() {
         isLoggedIn = false;
 
         this.conn = null;
+        this.user = null;
         try {
             // db parameters
-            String url = "jdbc:sqlite:/home/htransteven/ucsb/cs174a/cs174a-stock-project/project/db/datastore.db";
+            String url = "jdbc:sqlite:/home/kjuu/classes/cmpsc174a/cs174a-stock-project/project/db/datastore.db";
             // create a connection to the database
             this.conn = DriverManager.getConnection(url);
             
@@ -39,20 +41,21 @@ public class Controller {
     }
     
     public boolean authenticateTrader(String username, String password) {
-        boolean isValidUser = authManager.authenticateTrader(username, password);
-        if (isValidUser) {
-            System.out.println("Welcome " + username);
+        user = authManager.authenticateTrader(username, password);
+        if (user != null) {
+            System.out.println("Welcome " + user.name);
             isLoggedIn = true;
         } else {
             System.out.println("Invalid user"); 
         }
         
-        return isValidUser;
+        return user != null;
     }
 
     public boolean logout() {
         if (isLoggedIn) {
             isLoggedIn = false;
+	    user = null;
             return true;
         }
         
@@ -63,12 +66,13 @@ public class Controller {
         boolean res = this.userManager.createTrader(c);
         if (res) {
             isLoggedIn = true;
+	    user = c;
         }
         return res;
     }
     
     public void resetDatastore() {
-        String url = "jdbc:sqlite:/home/htransteven/ucsb/cs174a/cs174a-stock-project/project/db/datastore.db";
+        String url = "jdbc:sqlite:/home/kjuu/classes/cmpsc174a/cs174a-stock-project/project/db/datastore.db";
         String[] tablesToClear = new String[] {"Sys_Info", "Accrue_Interest", "Customer", "Deposit", "Owns_Stock", "Market_Account", "Buy", "Movie", 
                 "Movie_Contract", "Stock", "Withdraw", "Sell", "Stock_Profile" };
 
@@ -93,7 +97,7 @@ public class Controller {
 
         try {
             // Read CSV file
-            Scanner sc = new Scanner(new File("/home/htransteven/ucsb/cs174a/cs174a-stock-project/project/db/data.csv"));
+            Scanner sc = new Scanner(new File("/home/kjuu/classes/cmpsc174a/cs174a-stock-project/project/db/data.csv"));
             sc.useDelimiter("\n");
             while (sc.hasNext()) {
                 String entry = sc.next();
