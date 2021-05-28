@@ -74,7 +74,63 @@ public class Controller {
         return false;
     }
     
+    public List<StockAccountData> getStockAccountData() {
+        if (!isLoggedIn) {
+            System.out.println("Must be logged in to get stock account data");
+            return new ArrayList<StockAccountData>();
+        }
+       
+        return saManager.getStockAccountData(user.taxid);
+    }
+    
+    public boolean sell(StockAccountData data, int shares) {
+        if (shares < 0) {
+            System.out.println("Cannot sell a negative nubmer of stocks");
+            return false;
+        }
+        if (shares > data.getShares()) {
+            System.out.println("You cannot sell more stocks than you own");
+            return false;
+        }
+
+        final String date = sysManager.getDate();
+        final int sellPrice = stockManager.getStockPriceOnDate(data.getSymbol(), date);
+
+        final int profit = sellPrice * shares - 2000; // $20.00 commission fee
+        System.out.println(profit);
+
+        final String UPDATE_SELL = "INSERT INTO Sell"
+            + "(transaction_date, tax_id, stock_symbol, shares, price_per_share_bought, price_per_share_sold) "
+            + "VALUES (\"" + date + "\", " + user.taxid + ", \"" + data.getSymbol() + "\", " + shares + ", " + data.getPrice() + ", " + sellPrice + ")"; 
+
+        final String UPDATE_MARKET = "UPDATE Market_Account SET balance = balance + " + profit + " WHERE tax_id = " + user.taxid;
+        String UPDATE_OWNS;
+        
+        if (shares == data.getShares()) {
+            UPDATE_OWNS = "DELETE FROM Owns_Stock WHERE tax_id=" + user.taxid + " AND stock_symbol=\"" + data.getSymbol() + "\" AND price_per_share=" + data.getPrice();
+        } else {
+            UPDATE_OWNS = "UPDATE Owns_Stock SET shares=" + (data.getShares() - shares) + " WHERE tax_id=" + user.taxid + " AND stock_symbol=\"" + data.getSymbol() + "\" AND price_per_share=" + data.getPrice();
+        }
+
+        try {
+            Statement stmt = conn.createStatement();
+            stmt.addBatch(UPDATE_SELL);
+            stmt.addBatch(UPDATE_MARKET);
+            stmt.addBatch(UPDATE_OWNS);
+            stmt.executeBatch();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage()); 
+            return false;
+        }
+
+        return true;
+    }
+    
     public boolean purchase(Stock stock, int shares) {
+        if (shares < 0) {
+            System.out.println("Cannot purchase a negative number of stocks");
+            return false;
+        }
         final int totalPrice = stock.getPrice() * shares + 2000; // $20 commission fee
         final int customerBalance = maManager.getBalance(user.taxid);
         final int finalBalance = customerBalance - totalPrice;

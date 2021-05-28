@@ -15,7 +15,7 @@ public class StockManager {
         conn = c; 
     }
     
-    public List<Stock> getStocksForDate(String date) {
+    public List<Stock> getStocksForDate(final String date) {
         List<Stock> stocks = new ArrayList<>();
         
         final String QUERY = "SELECT * FROM Stock WHERE date=\"" + date + "\"";
@@ -30,5 +30,20 @@ public class StockManager {
         }
         
         return stocks;
+    }
+    
+    public int getStockPriceOnDate(final String stockSymbol, final String date) {
+        final String QUERY = "SELECT price FROM Stock WHERE stock_symbol=\"" + stockSymbol + "\" AND date=\"" + date + "\"";
+        try {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(QUERY);
+            if (rs.next()) {
+                return rs.getInt("price"); 
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage()); 
+        }
+
+        return -1;
     }
 }
