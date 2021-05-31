@@ -1,6 +1,8 @@
 package shell;
 
 import java.util.Scanner;
+import java.util.List;
+
 import backend.*;
 
 public class TraderShell {
@@ -30,7 +32,12 @@ public class TraderShell {
                 case "reset":
                 controller.resetDatastore();
                 break;
-
+                case "buy":
+                promptBuy();
+                break;
+                case "sell":
+                promptSell();
+                break;
 
             }
             System.out.print("> ");
@@ -38,6 +45,114 @@ public class TraderShell {
         }
 
         input.close();
+    }
+    
+    public static void promptSell() {
+        if (!controller.isMarketOpen()) {
+            System.out.println("Market is closed, no selling allowed"); 
+            return;
+        }
+    
+        List<StockAccountData> saData = controller.getStockAccountData();
+        if (saData.isEmpty()) {
+            System.out.println("No stocks to sell"); 
+            return;
+        }
+    
+        System.out.println("Stocks you own:");
+        for (StockAccountData d : saData) {
+            System.out.println(d); 
+        }
+        
+        System.out.print("Enter the stock symbol you wish to sell: ");
+        final String symbol = input.nextLine();
+        System.out.print("Enter the price of the stock you wish to sell: ");
+        final String sPrice = input.nextLine();
+       
+        int price = 0;
+        for (char c : sPrice.toCharArray()) {
+            if (c == '.') continue;
+            price = price * 10 + (c - '0'); // dirty ASCII trick, maybe cleanup later
+        }
+        
+        // Again, linear check here... replace if this becomes a problem
+        // Can use set, also since we group by stock symbol we can optimize using that
+        StockAccountData tbs = null;
+        for (StockAccountData d : saData) {
+            if (d.getSymbol().equals(symbol) && d.getPrice() == price) {
+                tbs = d;
+                break;
+            }
+        }
+        
+        if (tbs == null) {
+            System.out.println("You don't own " + symbol + " at " + price);
+            return;
+        }
+
+        System.out.print("Enter the number of shares you wish to sell: ");
+        final int shares = input.nextInt();
+        
+        boolean res = controller.sell(tbs, shares);
+        if (res) {
+            System.out.println("Sold stocks successfully"); 
+        } else {
+            System.out.println("Error occurred when trying to sell");
+        }
+    }
+
+    public static void promptBuy() {
+        if (!controller.isLoggedIn()) {
+            System.out.println("You must be logged in to make a purchase");
+            return;
+        } 
+        if (!controller.isMarketOpen()) {
+            System.out.println("Market is closed, no purchases allowed"); 
+            return;
+        }
+
+        System.out.println("Currently available stocks:");
+        List<Stock> availableStocks = controller.getAvailableStocks(); 
+        if (availableStocks.isEmpty()) {
+            System.out.println("No stocks are available"); 
+            return;
+        }
+
+        for (Stock s : availableStocks) {
+            System.out.println(s); 
+        }
+        
+        System.out.print("Enter the stock symbol to purchase: ");
+        String symbol = input.nextLine();
+       
+        // For demo purposes assuming that there are not that many
+        // stocks, we can linearly search; in the future we can modify
+        // availableStocks to return a HashSet for a faster check
+        boolean found = false;
+        Stock tbp = null;
+        for (Stock s : availableStocks) {
+            if (s.getSymbol().equals(symbol)) {
+                found = true;
+                tbp = s;
+                break; 
+            }
+        }
+        
+        if (tbp == null) {
+            System.out.println("Invalid stock symbol"); 
+            return;
+        }
+        
+        System.out.print("Enter the number of shares to purchase: ");
+        int numShares = input.nextInt();
+        
+        boolean res = controller.purchase(tbp, numShares);
+        if (res) {
+            System.out.println("Purchase successful"); 
+        } else {
+            System.out.println("Error occurred while attempting to purchase"); 
+        }
+        
     }
 
     public static void promptSignup() {
