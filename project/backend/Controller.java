@@ -83,6 +83,15 @@ public class Controller {
         return saManager.getStockAccountData(user.taxid);
     }
     
+    public int getBalance() {
+        if (!isLoggedIn) {
+            System.out.println("Must be logged in to get market account balance");
+            return -1;
+        } 
+        
+        return maManager.getBalance(user.taxid);
+    }
+    
     public boolean sell(StockAccountData data, int shares) {
         if (shares < 0) {
             System.out.println("Cannot sell a negative nubmer of stocks");

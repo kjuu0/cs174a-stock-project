@@ -38,6 +38,10 @@ public class TraderShell {
                 case "sell":
                 promptSell();
                 break;
+                case "balance":
+                displayBalance();
+                break;
+
 
             }
             System.out.print("> ");
@@ -45,6 +49,14 @@ public class TraderShell {
         }
 
         input.close();
+    }
+    
+    public static void displayBalance() {
+        final int balance = controller.getBalance(); 
+        if (balance != -1) {
+            int bInt = balance / 100, bDec = balance % 100;
+            System.out.println(String.format("Current balance: $%d.%02d", bInt, bDec)); 
+        }
     }
     
     public static void promptSell() {
