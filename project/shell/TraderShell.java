@@ -32,6 +32,12 @@ public class TraderShell {
                 case "reset":
                 controller.resetDatastore();
                 break;
+                case "deposit":
+                promptDeposit();
+                break;
+                case "withdraw":
+                promptWithdraw();
+                break;
                 case "buy":
                 promptBuy();
                 break;
@@ -89,6 +95,76 @@ public class TraderShell {
             int bInt = balance / 100, bDec = balance % 100;
             System.out.println(String.format("Current balance: $%d.%02d", bInt, bDec)); 
         }
+    }
+
+    public static void promptDeposit() {
+        System.out.print("Enter the amount you want to deposit (ex. 4.24, 424, 4.20): $");
+        final String valueString = input.nextLine();
+        int decimalIndex = valueString.indexOf(".");
+        int value;
+        if (decimalIndex == -1) { //whole dollars
+            try {
+                value = Integer.parseInt(valueString) * 100;
+            } catch (NumberFormatException e) {
+                System.out.println("invalid amount format");
+                return;
+            }
+        } else {
+            try {
+                int dollars = Integer.parseInt(valueString.substring(0, decimalIndex));
+                int cents = Integer.parseInt(valueString.substring(decimalIndex + 1));
+                if (decimalIndex == valueString.length() - 2) {
+                    cents *= 10;
+                }
+                value = dollars * 100 + cents;
+            } catch (NumberFormatException e) {
+                System.out.println("invalid amount format");
+                return;
+            }
+        }
+        if (!controller.deposit(value)) {
+            System.out.println(String.format("Failed to deposit $%d.%02d!", value / 100, value % 100));
+        } else {
+            System.out.println(String.format("Successfully deposited $%d.%02d!", value / 100, value % 100));
+            displayBalance();
+        }
+
+        System.out.println();
+    }
+
+    public static void promptWithdraw() {
+        System.out.print("Enter the amount you want to withdraw (ex. 4.24, 424, 4.20): $");
+        final String valueString = input.nextLine();
+        int decimalIndex = valueString.indexOf(".");
+        int value;
+        if (decimalIndex == -1) { //whole dollars
+            try {
+                value = Integer.parseInt(valueString) * 100;
+            } catch (NumberFormatException e) {
+                System.out.println("invalid amount format");
+                return;
+            }
+        } else {
+            try {
+                int dollars = Integer.parseInt(valueString.substring(0, decimalIndex));
+                int cents = Integer.parseInt(valueString.substring(decimalIndex + 1));
+                if (decimalIndex == valueString.length() - 2) {
+                    cents *= 10;
+                }
+                value = dollars * 100 + cents;
+            } catch (NumberFormatException e) {
+                System.out.println("invalid amount format");
+                return;
+            }
+        }
+        if (!controller.withdraw(value)) {
+            System.out.println(String.format("Failed to withdraw $%d.%02d!", value / 100, value % 100));
+        } else {
+            System.out.println(String.format("Successfully withdrew $%d.%02d", value / 100, value % 100));
+            displayBalance();
+        }
+
+        System.out.println();
     }
     
     public static void promptSell() {
@@ -251,8 +327,21 @@ public class TraderShell {
 
     public static void printHelp() {
         System.out.println("--- Available Commands ---");
-        System.out.println("login [username] [password]");
-        System.out.println("logut");
-        System.out.println("signup");
+        if (!controller.isLoggedIn()) {
+            System.out.println("login");
+            System.out.println("signup");
+        } else {
+            System.out.println("logout");
+            System.out.println("balance");
+            System.out.println("deposit");
+            System.out.println("withdraw");
+            System.out.println("buy");
+            System.out.println("sell");
+            System.out.println("stock_transactions");
+        }
+        System.out.println("reset");
+        System.out.println("help");
+        System.out.println("q, quit");
+        System.out.println("--------------------------\n");
     }
 }

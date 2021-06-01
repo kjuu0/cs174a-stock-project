@@ -4,8 +4,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.ResultSet;
-import java.sql.DatabaseMetaData;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -31,7 +29,7 @@ public class Controller {
         this.user = null;
         try {
             // db parameters
-            String url = "jdbc:sqlite:/home/kjuu/classes/cmpsc174a/cs174a-stock-project/project/db/datastore.db";
+            String url = "jdbc:sqlite:/home/htransteven/ucsb/cs174a/cs174a-stock-project/project/db/datastore.db";
             // create a connection to the database
             this.conn = DriverManager.getConnection(url);
             
@@ -40,7 +38,7 @@ public class Controller {
             this.userManager = new UserManager(this.conn);
             this.sysManager = new SysManager(this.conn);
             this.stockManager = new StockManager(this.conn);
-            this.maManager = new MarketAccountManager(this.conn);
+            this.maManager = new MarketAccountManager(this.conn, sysManager);
             this.saManager = new StockAccountManager(this.conn);
             
         } catch (SQLException e) {
@@ -65,6 +63,7 @@ public class Controller {
         
         return saManager.getSellTransactions(user.taxid);
     }
+
     public boolean authenticateTrader(String username, String password) {
         user = authManager.authenticateTrader(username, password);
         if (user != null) {
@@ -107,6 +106,25 @@ public class Controller {
         } 
         
         return maManager.getBalance(user.taxid);
+    }
+
+    public boolean deposit(int value) {
+        if (!isLoggedIn) {
+            System.out.println("Must be logged in to deposit money");
+            return false;
+        }
+
+        maManager.deposit(user.taxid, value);
+        return true;
+    }
+
+    public boolean withdraw(int value) {
+        if (!isLoggedIn) {
+            System.out.println("Must be logged in to withdraw money");
+            return false;
+        }
+        
+        return maManager.withdraw(user.taxid, value);
     }
     
     public boolean sell(StockAccountData data, int shares) {
@@ -219,7 +237,6 @@ public class Controller {
     }
     
     public void resetDatastore() {
-        String url = "jdbc:sqlite:/home/kjuu/classes/cmpsc174a/cs174a-stock-project/project/db/datastore.db";
         String[] tablesToClear = new String[] {"Sys_Info", "Accrue_Interest", "Customer", "Deposit", "Owns_Stock", "Market_Account", "Buy", "Movie", 
                 "Movie_Contract", "Stock", "Withdraw", "Sell", "Stock_Profile" };
 
@@ -244,7 +261,7 @@ public class Controller {
 
         try {
             // Read CSV file
-            Scanner sc = new Scanner(new File("/home/kjuu/classes/cmpsc174a/cs174a-stock-project/project/db/data.csv"));
+            Scanner sc = new Scanner(new File("/home/htransteven/ucsb/cs174a/cs174a-stock-project/project/db/data.csv"));
             sc.useDelimiter("\n");
             while (sc.hasNext()) {
                 String entry = sc.next();
