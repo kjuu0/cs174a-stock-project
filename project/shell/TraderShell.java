@@ -38,6 +38,13 @@ public class TraderShell {
                 case "sell":
                 promptSell();
                 break;
+                case "balance":
+                displayBalance();
+                break;
+                case "stock_transactions":
+                displayStockTransactions();
+                break;
+
 
             }
             System.out.print("> ");
@@ -45,6 +52,43 @@ public class TraderShell {
         }
 
         input.close();
+    }
+    
+    public static void displayStockTransactions() {
+        if (!controller.isLoggedIn()) {
+            System.out.println("Must be logged in to display transaction history"); 
+            return;
+        }
+        
+        // Probably cleaner if we created a function in controller to aggregate these into
+        // one list and use polymorphism; but it's been a while since I usede 
+        // that stuff so we'll go for this manual merging for now. Can look into this later
+        List<BuyTransaction> buys = controller.getStockBuyTransactions();
+        List<SellTransaction> sells = controller.getStockSellTransactions();
+        
+        int i = 0, j = 0;
+        while (i < buys.size() && j < sells.size()) {
+            final long bTimestamp = buys.get(i).getTimestamp();
+            final long sTimestamp = sells.get(j).getTimestamp();
+            if (bTimestamp >= sTimestamp) {
+                System.out.println(buys.get(i));
+                i++;
+            } else {
+                System.out.println(sells.get(j)); 
+                j++;
+            }
+        }
+    
+        for (; i < buys.size(); i++) System.out.println(buys.get(i));
+        for (; j < sells.size(); j++) System.out.println(sells.get(j));
+    }
+    
+    public static void displayBalance() {
+        final int balance = controller.getBalance(); 
+        if (balance != -1) {
+            int bInt = balance / 100, bDec = balance % 100;
+            System.out.println(String.format("Current balance: $%d.%02d", bInt, bDec)); 
+        }
     }
     
     public static void promptSell() {
@@ -185,6 +229,10 @@ public class TraderShell {
     }
 
     public static void promptLogin() {
+        if (controller.isLoggedIn()) {
+            System.out.println("You are already logged into an account! Please logout before logging into another account"); 
+            return;
+        }
         System.out.print("Username: "); 
         String user = input.nextLine();
         System.out.print("Password: ");

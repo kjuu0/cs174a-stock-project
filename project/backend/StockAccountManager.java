@@ -15,6 +15,57 @@ public class StockAccountManager {
         conn = c; 
     }
     
+    public List<SellTransaction> getSellTransactions(final int taxid) {
+        List<SellTransaction> transactions = new ArrayList<>();
+        final String QUERY = "SELECT * FROM Sell WHERE tax_id=" + taxid + " ORDER BY timestamp DESC";
+
+        try {
+            Statement stmt = conn.createStatement(); 
+            ResultSet rs = stmt.executeQuery(QUERY);
+           
+            while (rs.next()) {
+                transactions.add(new SellTransaction(
+                    rs.getInt("transaction_id"),
+                    rs.getString("transaction_date"),
+                    rs.getLong("timestamp"),
+                    rs.getInt("tax_id"),
+                    rs.getString("stock_symbol"),
+                    rs.getInt("shares"),
+                    rs.getInt("price_per_share_bought"),
+                    rs.getInt("price_per_share_sold")));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage()); 
+        }
+        
+        return transactions;
+    } 
+    
+    public List<BuyTransaction> getBuyTransactions(final int taxid) {
+        List<BuyTransaction> transactions = new ArrayList<>();
+        final String QUERY = "SELECT * FROM Buy WHERE tax_id=" + taxid + " ORDER BY timestamp DESC";
+
+        try {
+            Statement stmt = conn.createStatement(); 
+            ResultSet rs = stmt.executeQuery(QUERY);
+           
+            while (rs.next()) {
+                transactions.add(new BuyTransaction(
+                    rs.getInt("transaction_id"),
+                    rs.getString("transaction_date"),
+                    rs.getLong("timestamp"),
+                    rs.getInt("tax_id"),
+                    rs.getString("stock_symbol"),
+                    rs.getInt("shares"),
+                    rs.getInt("price_per_share")));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage()); 
+        }
+        
+        return transactions;
+    } 
+    
     public int getSharesOwnedAtPrice(final int taxid, final String stockSymbol, final int pricePerShare) {
         final String QUERY = "SELECT shares FROM Owns_Stock WHERE tax_id=" + taxid + " AND stock_symbol=\"" + stockSymbol + "\" AND price_per_share=" + pricePerShare; 
         

@@ -7,7 +7,13 @@ public class Stock {
     private String symbol;
     private String date;
     private int price; 
-    
+   
+    public Stock(String s, String d, int p) {
+        symbol = s;
+        date = d;
+        price = p; 
+    }
+
     public Stock(ResultSet rs) {
         try {
             symbol = rs.getString("stock_symbol");
