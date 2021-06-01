@@ -47,7 +47,9 @@ public class TraderShell {
                 case "stock_info":
                 displayStockInfo();
                 break;
-
+                case "movie_info":
+                promptMovieInfo();
+                break;
 
             }
             System.out.print("> ");
@@ -55,6 +57,17 @@ public class TraderShell {
         }
 
         input.close();
+    }
+    
+    public static void promptMovieInfo() {
+        System.out.print("Enter the movie name to display info for: ");
+        final String movieName = input.nextLine();
+        MovieData d = controller.getMovieData(movieName);
+        if (d == null) {
+            System.out.println("No movie exists with that name"); 
+        } else {
+            System.out.println(d); 
+        }
     }
     
     public static void displayStockInfo() {
