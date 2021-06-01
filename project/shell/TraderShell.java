@@ -197,6 +197,10 @@ public class TraderShell {
     }
 
     public static void promptLogin() {
+        if (controller.isLoggedIn()) {
+            System.out.println("You are already logged into an account! Please logout before logging into another account"); 
+            return;
+        }
         System.out.print("Username: "); 
         String user = input.nextLine();
         System.out.print("Password: ");
