@@ -50,6 +50,9 @@ public class TraderShell {
                 case "movie_info":
                 promptMovieInfo();
                 break;
+                case "top_movies":
+                promptTopMovies();
+                break;
 
             }
             System.out.print("> ");
@@ -57,6 +60,28 @@ public class TraderShell {
         }
 
         input.close();
+    }
+    
+    public static void promptTopMovies() {
+        System.out.print("Enter the lowest rating: ");
+        final String sRating = input.nextLine();
+        int rating = 0;
+        for (char c : sRating.toCharArray()) {
+            if (c == '.') continue;
+            rating = rating * 10 + (c - '0'); 
+        }
+        System.out.print("Enter the earliest year in your range: "); 
+        final int start = input.nextInt();
+        System.out.print("Enter the last year in your range: "); 
+        final int end = input.nextInt();
+        List<String> names = controller.getTopMovieNames(rating, start, end);
+        if (names.isEmpty()) {
+            System.out.println("There are no movies that fit the criteria");
+        } else {
+            for (String n : names) {
+                System.out.println(n);
+            } 
+        }
     }
     
     public static void promptMovieInfo() {

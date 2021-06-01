@@ -228,6 +228,10 @@ public class Controller {
         return mManager.getMovieData(movieName);
     }
     
+    public List<String> getTopMovieNames(final int rating, final int start, final int end) {
+        return mManager.getTopMoviesInRange(rating, start, end);
+    }
+    
     public void resetDatastore() {
         String url = "jdbc:sqlite:/home/kjuu/classes/cmpsc174a/cs174a-stock-project/project/db/datastore.db";
         String[] tablesToClear = new String[] {"Sys_Info", "Accrue_Interest", "Customer", "Deposit", "Owns_Stock", "Market_Account", "Buy", "Movie", 
