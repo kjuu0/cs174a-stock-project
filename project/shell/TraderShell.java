@@ -44,6 +44,9 @@ public class TraderShell {
                 case "stock_transactions":
                 displayStockTransactions();
                 break;
+                case "stock_info":
+                displayStockInfo();
+                break;
 
 
             }
@@ -52,6 +55,13 @@ public class TraderShell {
         }
 
         input.close();
+    }
+    
+    public static void displayStockInfo() {
+        List<StockProfile> profiles = controller.getAvailableStockProfiles();
+        for (StockProfile p : profiles) {
+            System.out.println(p); 
+        }
     }
     
     public static void displayStockTransactions() {
