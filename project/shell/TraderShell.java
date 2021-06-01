@@ -50,7 +50,15 @@ public class TraderShell {
                 case "stock_transactions":
                 displayStockTransactions();
                 break;
-
+                case "stock_info":
+                displayStockInfo();
+                break;
+                case "movie_info":
+                promptMovieInfo();
+                break;
+                case "top_movies":
+                promptTopMovies();
+                break;
 
             }
             System.out.print("> ");
@@ -58,6 +66,46 @@ public class TraderShell {
         }
 
         input.close();
+    }
+    
+    public static void promptTopMovies() {
+        System.out.print("Enter the lowest rating: ");
+        final String sRating = input.nextLine();
+        int rating = 0;
+        for (char c : sRating.toCharArray()) {
+            if (c == '.') continue;
+            rating = rating * 10 + (c - '0'); 
+        }
+        System.out.print("Enter the earliest year in your range: "); 
+        final int start = input.nextInt();
+        System.out.print("Enter the last year in your range: "); 
+        final int end = input.nextInt();
+        List<String> names = controller.getTopMovieNames(rating, start, end);
+        if (names.isEmpty()) {
+            System.out.println("There are no movies that fit the criteria");
+        } else {
+            for (String n : names) {
+                System.out.println(n);
+            } 
+        }
+    }
+    
+    public static void promptMovieInfo() {
+        System.out.print("Enter the movie name to display info for: ");
+        final String movieName = input.nextLine();
+        MovieData d = controller.getMovieData(movieName);
+        if (d == null) {
+            System.out.println("No movie exists with that name"); 
+        } else {
+            System.out.println(d); 
+        }
+    }
+    
+    public static void displayStockInfo() {
+        List<StockProfile> profiles = controller.getAvailableStockProfiles();
+        for (StockProfile p : profiles) {
+            System.out.println(p); 
+        }
     }
     
     public static void displayStockTransactions() {

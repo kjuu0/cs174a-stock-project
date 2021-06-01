@@ -48,9 +48,9 @@ Stock,STC,2013/03/16,3250
 Stock_Profile,SKB,Kim Basinger,1958/12/08
 Stock_Profile,SMD,Michael Douglas,1944/09/25
 Stock_Profile,STC,Tom Cruise,1962/07/03
-Movie,2606,L.A. Confidential,1997,Action,7.8,842
-Movie,0421,A Perfect Murder,1998,Thriller,8.4,1230
-Movie,7612,Jerry Maguire,1996,Comedy,6.3,183
+Movie,2606,L.A. Confidential,1997,Action,78,842
+Movie,0421,A Perfect Murder,1998,Thriller,84,1230
+Movie,7612,Jerry Maguire,1996,Comedy,63,183
 Movie_Contract,SKB,L.A. Confidential,1997,5000000,Actor
 Movie_Contract,SMD,L.A. Confidential,1998,10000000,Actor
 Movie_Contract,STC,Jerry Maguire,1996,5000000,Actor
