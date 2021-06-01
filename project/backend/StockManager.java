@@ -23,7 +23,7 @@ public class StockManager {
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(QUERY);
             while (rs.next()) {
-                stocks.add(Stock.constructStock(rs)); 
+                stocks.add(new Stock(rs)); 
             } 
         } catch (SQLException e) {
             System.out.println(e.getMessage()); 

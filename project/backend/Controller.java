@@ -97,7 +97,6 @@ public class Controller {
         final int sellPrice = stockManager.getStockPriceOnDate(data.getSymbol(), date);
 
         final int profit = sellPrice * shares - 2000; // $20.00 commission fee
-        System.out.println(profit);
 
         final String UPDATE_SELL = "INSERT INTO Sell"
             + "(transaction_date, tax_id, stock_symbol, shares, price_per_share_bought, price_per_share_sold) "
