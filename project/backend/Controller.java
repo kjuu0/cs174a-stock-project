@@ -21,6 +21,7 @@ public class Controller {
     private StockManager stockManager;
     private MarketAccountManager maManager;
     private StockAccountManager saManager;
+    private MovieManager mManager;
     private boolean isLoggedIn;
     private Customer user;
 
@@ -42,6 +43,7 @@ public class Controller {
             this.stockManager = new StockManager(this.conn);
             this.maManager = new MarketAccountManager(this.conn);
             this.saManager = new StockAccountManager(this.conn);
+            this.mManager = new MovieManager(this.conn);
             
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -216,6 +218,18 @@ public class Controller {
     
     public List<Stock> getAvailableStocks() {
         return stockManager.getStocksForDate(sysManager.getDate());
+    }
+    
+    public List<StockProfile> getAvailableStockProfiles() {
+        return stockManager.getStockProfilesForDate(sysManager.getDate());
+    }
+    
+    public MovieData getMovieData(final String movieName) {
+        return mManager.getMovieData(movieName);
+    }
+    
+    public List<String> getTopMovieNames(final int rating, final int start, final int end) {
+        return mManager.getTopMoviesInRange(rating, start, end);
     }
     
     public void resetDatastore() {
