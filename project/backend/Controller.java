@@ -48,6 +48,23 @@ public class Controller {
         }
     }
     
+    public List<BuyTransaction> getStockBuyTransactions() {
+        if (!isLoggedIn) {
+            System.out.println("Cannot get transaction info if you're not logged in"); 
+            return new ArrayList<>();
+        } 
+        
+        return saManager.getBuyTransactions(user.taxid);
+    }
+    
+    public List<SellTransaction> getStockSellTransactions() {
+        if (!isLoggedIn) {
+            System.out.println("Cannot get transaction info if you're not logged in"); 
+            return new ArrayList<>();
+        } 
+        
+        return saManager.getSellTransactions(user.taxid);
+    }
     public boolean authenticateTrader(String username, String password) {
         user = authManager.authenticateTrader(username, password);
         if (user != null) {
@@ -108,8 +125,8 @@ public class Controller {
         final int profit = sellPrice * shares - 2000; // $20.00 commission fee
 
         final String UPDATE_SELL = "INSERT INTO Sell"
-            + "(transaction_date, tax_id, stock_symbol, shares, price_per_share_bought, price_per_share_sold) "
-            + "VALUES (\"" + date + "\", " + user.taxid + ", \"" + data.getSymbol() + "\", " + shares + ", " + data.getPrice() + ", " + sellPrice + ")"; 
+            + "(transaction_date, timestamp, tax_id, stock_symbol, shares, price_per_share_bought, price_per_share_sold) "
+            + "VALUES (\"" + date + "\", " + System.currentTimeMillis() / 1000 + ", " + user.taxid + ", \"" + data.getSymbol() + "\", " + shares + ", " + data.getPrice() + ", " + sellPrice + ")"; 
 
         final String UPDATE_MARKET = "UPDATE Market_Account SET balance = balance + " + profit + " WHERE tax_id = " + user.taxid;
         String UPDATE_OWNS;
@@ -131,6 +148,8 @@ public class Controller {
             return false;
         }
 
+        System.out.println(String.format("Transaction success: sold %dx %s bought at $%d.%02d per share at $%d.%02d per share, total transaction profit of $%d.%02d including the $20.00 commission fee",
+            shares, data.getSymbol(), data.getPrice() / 100, data.getPrice() % 100, sellPrice / 100, sellPrice % 100, profit / 100, profit % 100));
         return true;
     }
     
@@ -149,8 +168,8 @@ public class Controller {
         }
 
         final String UPDATE_BUY = "INSERT INTO Buy"
-            + "(transaction_date, tax_id, stock_symbol, shares, price_per_share) "
-            + "VALUES (\"" + stock.getDate() + "\", " + user.taxid + ", \"" + stock.getSymbol() + "\", " + shares + ", " + stock.getPrice() + ")";
+            + "(transaction_date, timestamp, tax_id, stock_symbol, shares, price_per_share) "
+            + "VALUES (\"" + stock.getDate() + "\", " + System.currentTimeMillis() / 1000 + ", " + user.taxid + ", \"" + stock.getSymbol() + "\", " + shares + ", " + stock.getPrice() + ")";
         final String UPDATE_MARKET = "UPDATE Market_Account SET balance = " + finalBalance + " WHERE tax_id = " + user.taxid;
         
         String UPDATE_OWNS;
@@ -173,7 +192,8 @@ public class Controller {
             System.out.println(e.getMessage()); 
             return false;
         }
-
+        System.out.println(String.format("Transaction success: bought %dx %s at $%d.%02d per share, total transaction cost of $%d.%02d including the $20.00 commission fee",
+            shares, stock.getSymbol(), stock.getPrice() / 100, stock.getPrice() % 100, totalPrice / 100, totalPrice % 100));
         return true;
     }
 
