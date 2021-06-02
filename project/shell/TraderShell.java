@@ -519,6 +519,11 @@ public class TraderShell {
         
         System.out.print("Enter the index you wish to sell: ");
         final int index = input.nextInt();
+        if (index < 0 || index >= saData.size()) {
+            System.out.println("Invalid index");
+            return; 
+        }
+
         StockAccountData tbs = saData.get(index);
 
         System.out.print("Enter the number of shares you wish to sell: ");

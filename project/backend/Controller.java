@@ -190,10 +190,12 @@ public class Controller {
             System.out.println("You must be logged in to see your monthly statement.");
         }
 
+        Customer c = authManager.getCustomer(taxid);
+
         System.out.println("------------------- BEGIN STATEMENT -------------------");
-        System.out.println(String.format("%s/%s Monthly Statement for Tax ID %d", sysManager.getMonth(), sysManager.getYear(), user.taxid));
-        System.out.println(String.format("Name: %s", user.name));
-        System.out.println(String.format("Email: %s\n", user.email));
+        System.out.println(String.format("%s/%s Monthly Statement for Tax ID %d", sysManager.getMonth(), sysManager.getYear(), c.taxid));
+        System.out.println(String.format("Name: %s", c.name));
+        System.out.println(String.format("Email: %s\n", c.email));
 
         List<WithdrawTransaction> withdraws = maManager.getAllWithdrawsThisMonth(taxid);
         List<DepositTransaction> deposits = maManager.getAllDepositsThisMonth(taxid);
