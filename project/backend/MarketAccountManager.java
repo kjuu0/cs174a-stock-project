@@ -137,8 +137,6 @@ public class MarketAccountManager {
     }
 
     public void addInterest(int taxid, float rate) {
-        int balance = getBalance(taxid);
-        int newBalance = balance + Math.round(balance * rate);
         final String UPDATE_BALANCE = "UPDATE Market_Account SET balance = balance + (balance * " + rate + ") WHERE tax_id = " + taxid;
 
         try {
