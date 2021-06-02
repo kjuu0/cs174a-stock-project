@@ -49,6 +49,35 @@ public class Controller {
         }
     }
 
+    public void listActiveCustomers() {
+        if (!isManager) {
+            System.out.println("You are not authorized to use this command!");
+            return;
+        }
+
+        List<Customer> customers = userManager.getAllUsers();
+
+        System.out.println("--------- ACTIVE CUSTOMERS ( > 1,000 shares traded) ---------");
+        for(Customer c: customers) {
+            List<BuyTransaction> buys = saManager.getBuyTransactionsThisMonth(c.taxid);
+            List<SellTransaction> sells = saManager.getSellTransactionsThisMonth(c.taxid);
+
+            int sharesTraded = 0;
+            for (BuyTransaction b: buys) {
+                sharesTraded += b.getShares();
+            }
+            for (SellTransaction s: sells) {
+                sharesTraded += s.getShares();
+            }
+
+            if (sharesTraded > 1000) {
+                System.out.println(String.format("%d - %s traded %d shares", c.taxid, c.name, sharesTraded));
+            }
+        }
+
+        System.out.println();
+    }
+
     public void getMonthlyStatement() {
         getMonthlyStatement(user.taxid);
     }

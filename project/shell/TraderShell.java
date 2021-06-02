@@ -68,6 +68,9 @@ public class TraderShell {
                 case "monthly_statement":
                 promptMonthlyStatement();
                 break;
+                case "active_customers":
+                listActiveCustomers();
+                break;
 
             }
             System.out.print("> ");
@@ -75,6 +78,9 @@ public class TraderShell {
         }
 
         input.close();
+    }
+    public static void listActiveCustomers() {
+        controller.listActiveCustomers();
     }
 
     public static void promptMonthlyStatement() {
