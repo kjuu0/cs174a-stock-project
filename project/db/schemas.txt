@@ -17,6 +17,11 @@ CREATE TABLE Customer (
     PRIMARY KEY (tax_id)
 );
 
+CREATE TABLE Manager (
+    tax_id INTEGER,
+    PRIMARY KEY (tax_id)
+);
+
 CREATE TABLE Market_Account (
     tax_id INTEGER,
     balance INTEGER CHECK (balance >= 0),

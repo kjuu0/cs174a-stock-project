@@ -21,6 +21,7 @@ public class Controller {
     private StockAccountManager saManager;
     private MovieManager mManager;
     private boolean isLoggedIn;
+    private boolean isManager;
     private Customer user;
 
     public Controller() {
@@ -87,8 +88,13 @@ public class Controller {
     public boolean authenticateTrader(String username, String password) {
         user = authManager.authenticateTrader(username, password);
         if (user != null) {
-            System.out.println("Welcome " + user.name);
             isLoggedIn = true;
+            isManager = authManager.isManager(user.taxid);
+            if (isManager) {
+                System.out.println("Welcome Manager " + user.name);
+            } else {
+                System.out.println("Welcome Trader " + user.name);
+            }
         } else {
             System.out.println("Invalid user"); 
         }
@@ -103,6 +109,7 @@ public class Controller {
     public boolean logout() {
         if (isLoggedIn) {
             isLoggedIn = false;
+            isManager = false;
             user = null;
             return true;
         }

@@ -7,8 +7,6 @@ import java.sql.Statement;
 
 public class AuthManager {
     private Connection conn;
-    private boolean isAuthenticated;
-    private boolean isAdmin;
 
     public AuthManager(Connection c) {
         this.conn = c;
@@ -26,8 +24,6 @@ public class AuthManager {
                 System.out.println("Did not find user"); 
                 return null;
             } else {
-                System.out.println("Found user with username " + username);
-                this.isAuthenticated = true;
                 return new Customer(rs);
             }
         } catch (SQLException e) {
@@ -35,6 +31,23 @@ public class AuthManager {
         }
 
         return null;
+    }
+
+    public boolean isManager(int taxid) {
+        final String QUERY = "SELECT * FROM Manager WHERE tax_id=" + taxid;
+
+        try {
+            Statement stmt = this.conn.createStatement();
+            ResultSet rs = stmt.executeQuery(QUERY);
+
+            if (!rs.next()) {
+                return false;
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage()); 
+        }
+
+        return true;
     }
 
 }
