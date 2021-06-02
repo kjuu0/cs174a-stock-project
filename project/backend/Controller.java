@@ -49,6 +49,10 @@ public class Controller {
         }
     }
     
+    public boolean setStockPrice(final String symbol, final int value) {
+        return stockManager.setStockPrice(symbol, value, sysManager.getDate()); 
+    }
+    
     public List<StockAccountData> getOwnedStocks(int taxid) {
         return saManager.getOwnedStocks(taxid); 
     }

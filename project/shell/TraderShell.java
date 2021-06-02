@@ -86,6 +86,9 @@ public class TraderShell {
                 case "close":
                 closeMarket();
                 break;
+                case "set_stock":
+                promptSetStockPrice();
+                break;
             }
             System.out.print("> ");
             cmd = input.nextLine();
@@ -93,6 +96,53 @@ public class TraderShell {
 
         input.close();
     }
+    
+    public static void promptSetStockPrice() {
+        if (!controller.isManager()) {
+            System.out.println("Must be a manager to set stock price"); 
+            return;
+        } 
+
+        System.out.print("Enter the stock symbol to change the price of: "); 
+        final String symbol = input.nextLine();
+        System.out.print("Enter the new price of " + symbol + "(ex. 4.24, 424, 4.20): $");
+
+        final String valueString = input.nextLine();
+        int decimalIndex = valueString.indexOf(".");
+        int value;
+        if (decimalIndex == -1) { //whole dollars
+            try {
+                value = Integer.parseInt(valueString) * 100;
+            } catch (NumberFormatException e) {
+                System.out.println("invalid amount format");
+                return;
+            }
+        } else {
+            try {
+                int dollars = Integer.parseInt(valueString.substring(0, decimalIndex));
+                int cents = Integer.parseInt(valueString.substring(decimalIndex + 1));
+                if (decimalIndex == valueString.length() - 2) {
+                    cents *= 10;
+                }
+                value = dollars * 100 + cents;
+            } catch (NumberFormatException e) {
+                System.out.println("invalid amount format");
+                return;
+            }
+        }
+       
+        if (value < 0) {
+            System.out.println("Cannot set a stock price to a negative amount");
+            return;
+        }
+        
+        if (controller.setStockPrice(symbol, value)) {
+            System.out.println("Successfully set stock price"); 
+        } else {
+            System.out.println("Failed to set stock price"); 
+        }
+    }
+
     
     public static void openMarket() {
         if (controller.setMarketStatus(1)) {
@@ -105,7 +155,6 @@ public class TraderShell {
             System.out.println("Market closed");
         } 
     }
-
     
     public static void promptDeleteTransactions() {
         if (!controller.isManager()) {
