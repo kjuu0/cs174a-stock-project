@@ -85,21 +85,6 @@ public class Controller {
                 }
             }
 
-            for (; i < accruedInterests.size(); i++) {
-                System.out.println(accruedInterests.get(i));
-                totalInterest += accruedInterests.get(i).getAmount();
-            };
-            for (; s < sells.size(); s++) {
-                System.out.println(sells.get(s));
-                
-                int diff = sells.get(s).getNetDifference();
-                if (diff > 0) {
-                    totalGain += diff;
-                } else {
-                    totalLoss += diff;
-                }
-            };
-
             int totalEarnings = totalGain + totalLoss + totalInterest;
 
             if (totalEarnings > 1000000) {
