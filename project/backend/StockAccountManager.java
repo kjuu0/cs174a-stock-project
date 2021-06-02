@@ -146,7 +146,7 @@ public class StockAccountManager {
     
     public List<StockAccountData> getStockAccountData(int taxid) {
         List<StockAccountData> data = new ArrayList<>();
-        final String QUERY = "SELECT stock_symbol, shares, price_per_share FROM Owns_Stock WHERE tax_id=" + taxid + " GROUP BY stock_symbol ORDER BY price_per_share"; 
+        final String QUERY = "SELECT stock_symbol, shares, price_per_share FROM Owns_Stock WHERE tax_id=" + taxid + " ORDER BY stock_symbol, price_per_share"; 
         try {
             Statement stmt = conn.createStatement(); 
             ResultSet rs = stmt.executeQuery(QUERY);

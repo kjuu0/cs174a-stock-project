@@ -48,7 +48,26 @@ public class Controller {
             System.out.println(e.getMessage());
         }
     }
-    
+
+    public boolean setDate(final String date) {
+        List<Stock> currentStocks = stockManager.getStocksForDate(sysManager.getDate());
+     
+        try {
+            Statement stmt = conn.createStatement(); 
+            // Roll over currently available stocks to the new date
+            for (Stock s : currentStocks) {
+                stmt.addBatch("INSERT INTO Stock VALUES (\"" + s.getSymbol() + "\", \"" + date + "\", " + s.getPrice() + ")"); 
+            }
+            stmt.addBatch("UPDATE Sys_Info SET date=\"" + date + "\"");
+            stmt.executeBatch();
+            return true;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage()); 
+        }
+        
+        return false;
+    } 
+
     public boolean setStockPrice(final String symbol, final int value) {
         return stockManager.setStockPrice(symbol, value, sysManager.getDate()); 
     }

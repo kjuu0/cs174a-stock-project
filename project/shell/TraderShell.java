@@ -89,12 +89,43 @@ public class TraderShell {
                 case "set_stock":
                 promptSetStockPrice();
                 break;
+                case "set_date":
+                promptSetDate();
+                break;
             }
             System.out.print("> ");
             cmd = input.nextLine();
         }
 
         input.close();
+    }
+    
+    public static void promptSetDate() {
+        if (!controller.isManager()) {
+            System.out.println("Must be a manager to set date");
+            return;
+        } 
+        
+        System.out.print("Enter the new date (YYYY/MM/DD): ");
+        final String date = input.nextLine();
+        if (date.length() != 10 || date.charAt(4) != '/' || date.charAt(7) != '/') {
+            System.out.println("invalid date format"); 
+        }
+
+        try {
+            int year = Integer.parseInt(date.substring(0, 4)); 
+            int month = Integer.parseInt(date.substring(5, 7));
+            int day = Integer.parseInt(date.substring(8));
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid date format");
+            return;
+        }
+        
+        if (controller.setDate(date)) {
+            System.out.println("Date successfully changed to " + date); 
+        } else {
+            System.out.println("Date was not changed"); 
+        }
     }
     
     public static void promptSetStockPrice() {
