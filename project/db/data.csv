@@ -51,6 +51,6 @@ Stock_Profile,STC,Tom Cruise,1962/07/03
 Movie,2606,L.A. Confidential,1997,Action,78,842
 Movie,0421,A Perfect Murder,1998,Thriller,84,1230
 Movie,7612,Jerry Maguire,1996,Comedy,63,183
-Movie_Contract,SKB,L.A. Confidential,1997,5000000,Actor
-Movie_Contract,SMD,L.A. Confidential,1998,10000000,Actor
-Movie_Contract,STC,Jerry Maguire,1996,5000000,Actor
+Movie_Contract,SKB,L.A. Confidential,1997,500000000,Actor
+Movie_Contract,SMD,L.A. Confidential,1998,1000000000,Actor
+Movie_Contract,STC,Jerry Maguire,1996,500000000,Actor

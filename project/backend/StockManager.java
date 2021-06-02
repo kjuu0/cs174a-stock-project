@@ -41,11 +41,24 @@ public class StockManager {
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(QUERY);
             while (rs.next()) {
-                profiles.add(new StockProfile(rs.getString("stock_symbol"),
+                final String CONTRACT_QUERY = "SELECT * FROM Movie_Contract WHERE symbol=\"" + rs.getString("stock_symbol") + "\"";
+                StockProfile sp = new StockProfile(rs.getString("stock_symbol"),
                     rs.getString("date"),
                     rs.getInt("price"),
                     rs.getString("name"),
-                    rs.getString("birthdate")));
+                    rs.getString("birthdate"));
+
+                Statement s = conn.createStatement();
+                ResultSet cs = s.executeQuery(CONTRACT_QUERY);
+                while (cs.next()) {
+                    sp.addContract(new MovieContract(cs.getString("movie_title"),
+                        cs.getString("symbol"),
+                        cs.getInt("year"),
+                        cs.getInt("total"),
+                        cs.getString("role")));
+                }
+                
+                profiles.add(sp);
             } 
         } catch (SQLException e) {
             System.out.println(e.getMessage()); 
