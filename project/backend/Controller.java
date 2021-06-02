@@ -127,13 +127,11 @@ public class Controller {
                 final int iTimestamp = i < accruedInterests.size() ? (int)accruedInterests.get(i).getTimestamp() : Integer.MAX_VALUE;
                 final int sTimestamp = s < sells.size() ? (int)sells.get(s).getTimestamp() : Integer.MAX_VALUE;
 
-                int min = Integer.min(sTimestamp, sTimestamp);
+                int min = Integer.min(iTimestamp, sTimestamp);
                 if (min == iTimestamp) {
-                    System.out.println(accruedInterests.get(i));
                     totalInterest += accruedInterests.get(i).getAmount();
                     i++;
                 } else if (min == sTimestamp){
-                    System.out.println(sells.get(s));
                     int diff = sells.get(s).getNetDifference();
                     if (diff > 0) {
                         totalGain += diff;
@@ -162,7 +160,7 @@ public class Controller {
 
         List<Customer> customers = userManager.getAllUsers();
 
-        System.out.println("--------- ACTIVE CUSTOMERS ( > 1,000 shares traded) ---------");
+        System.out.println("--------- ACTIVE CUSTOMERS ( >= 1,000 shares traded) ---------");
         for(Customer c: customers) {
             List<BuyTransaction> buys = saManager.getBuyTransactionsThisMonth(c.taxid);
             List<SellTransaction> sells = saManager.getSellTransactionsThisMonth(c.taxid);
@@ -175,7 +173,7 @@ public class Controller {
                 sharesTraded += s.getShares();
             }
 
-            if (sharesTraded > 1000) {
+            if (sharesTraded >= 1000) {
                 System.out.println(String.format("%d - %s traded %d shares", c.taxid, c.name, sharesTraded));
             }
         }
@@ -209,13 +207,13 @@ public class Controller {
         int commission = (buys.size() + sells.size()) * 2000;
         int d = 0, w = 0, i = 0, b = 0, s = 0;
         while (d < deposits.size() || w < withdraws.size() || i < accruedInterests.size() || b < buys.size() || s < sells.size()) {
-            final int dTimestamp = d < deposits.size() ? (int)deposits.get(d).getTimestamp() : Integer.MAX_VALUE;
-            final int wTimestamp = w < withdraws.size() ? (int)withdraws.get(w).getTimestamp() : Integer.MAX_VALUE;
-            final int iTimestamp = i < accruedInterests.size() ? (int)accruedInterests.get(i).getTimestamp() : Integer.MAX_VALUE;
-            final int bTimestamp = b < buys.size() ? (int)buys.get(b).getTimestamp() : Integer.MAX_VALUE;
-            final int sTimestamp = s < sells.size() ? (int)sells.get(s).getTimestamp() : Integer.MAX_VALUE;
+            final int dTimestamp = d < deposits.size() ? (int)deposits.get(d).getTimestamp() : 0; //Integer.MAX_VALUE;
+            final int wTimestamp = w < withdraws.size() ? (int)withdraws.get(w).getTimestamp() : 0;// Integer.MAX_VALUE;
+            final int iTimestamp = i < accruedInterests.size() ? (int)accruedInterests.get(i).getTimestamp() : 0; //Integer.MAX_VALUE;
+            final int bTimestamp = b < buys.size() ? (int)buys.get(b).getTimestamp() : 0; //Integer.MAX_VALUE;
+            final int sTimestamp = s < sells.size() ? (int)sells.get(s).getTimestamp() : 0;// Integer.MAX_VALUE;
 
-            int min = Integer.min(Integer.min(Integer.min(dTimestamp, wTimestamp),Integer.min(bTimestamp, sTimestamp)), iTimestamp);
+            int min = Integer.max(Integer.max(Integer.max(dTimestamp, wTimestamp),Integer.max(bTimestamp, sTimestamp)), iTimestamp);
             if (min == dTimestamp) {
                 System.out.println(deposits.get(d));
                 d++;
@@ -376,7 +374,7 @@ public class Controller {
         return saManager.getStockAccountData(taxid);
     }
     
-    public int getStockAccountBalance(int taxid) {
+    public long getStockAccountBalance(int taxid) {
         return saManager.getStockAccountBalance(taxid); 
     }
     
@@ -389,7 +387,7 @@ public class Controller {
         return saManager.getStockAccountData(user.taxid);
     }
 
-    public int getBalance(int taxid) {
+    public long getBalance(int taxid) {
         if (!isLoggedIn) {
             System.out.println("Must be logged in to get market account balance");
             return -1;
@@ -398,11 +396,15 @@ public class Controller {
         return maManager.getBalance(taxid);
     }
     
-    public int getBalance() {
+    public long getBalance() {
+        if (!isLoggedIn) {
+            System.out.println("Must be logged in to get market account balance");
+            return -1;
+        }
         return getBalance(user.taxid);
     }
 
-    public boolean deposit(int value) {
+    public boolean deposit(long value) {
         if (!isLoggedIn) {
             System.out.println("Must be logged in to deposit money");
             return false;
@@ -412,7 +414,7 @@ public class Controller {
         return true;
     }
 
-    public boolean withdraw(int value) {
+    public boolean withdraw(long value) {
         if (!isLoggedIn) {
             System.out.println("Must be logged in to withdraw money");
             return false;
@@ -422,8 +424,8 @@ public class Controller {
     }
     
     public boolean sell(StockAccountData data, int shares) {
-        if (shares < 0) {
-            System.out.println("Cannot sell a negative nubmer of stocks");
+        if (shares <= 0) {
+            System.out.println("Cannot sell a negative or zero number of stocks");
             return false;
         }
         if (shares > data.getShares()) {
@@ -432,9 +434,9 @@ public class Controller {
         }
 
         final String date = sysManager.getDate();
-        final int sellPrice = stockManager.getStockPriceOnDate(data.getSymbol(), date);
+        final long sellPrice = stockManager.getStockPriceOnDate(data.getSymbol(), date);
 
-        final int profit = sellPrice * shares - 2000; // $20.00 commission fee
+        final long profit = sellPrice * shares - 2000; // $20.00 commission fee
 
         final String UPDATE_SELL = "INSERT INTO Sell"
             + "(transaction_date, timestamp, tax_id, stock_symbol, shares, price_per_share_bought, price_per_share_sold) "
@@ -466,13 +468,14 @@ public class Controller {
     }
     
     public boolean purchase(Stock stock, int shares) {
-        if (shares < 0) {
-            System.out.println("Cannot purchase a negative number of stocks");
+        if (shares <= 0) {
+            System.out.println("Cannot purchase a negative or zero number of stocks");
             return false;
         }
-        final int totalPrice = stock.getPrice() * shares + 2000; // $20 commission fee
-        final int customerBalance = maManager.getBalance(user.taxid);
-        final int finalBalance = customerBalance - totalPrice;
+
+        final long totalPrice = stock.getPrice() * shares + 2000; // $20 commission fee
+        final long customerBalance = maManager.getBalance(user.taxid);
+        final long finalBalance = customerBalance - totalPrice;
         
         if (finalBalance < 0) {
             System.out.println("User has insufficient funds to make the purchase"); 

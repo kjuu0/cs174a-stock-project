@@ -2,9 +2,9 @@ package backend;
 
 public class MarketAccount {
     private int taxid;
-    private int balance;
+    private long balance;
 
-    public MarketAccount(int id, int b){
+    public MarketAccount(int id, long b){
         taxid = id;
         balance = b;
     }
@@ -13,7 +13,7 @@ public class MarketAccount {
         return taxid;
     }
 
-    public int getBalance() {
+    public long getBalance() {
         return balance;
     }
 }

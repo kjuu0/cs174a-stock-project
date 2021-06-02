@@ -175,7 +175,7 @@ public class StockAccountManager {
         return data;
     }
     
-    public int getStockAccountBalance(int taxid) {
+    public long getStockAccountBalance(int taxid) {
         final String QUERY = "SELECT SUM(price * total_shares) as balance " 
             + "FROM (SELECT stock_symbol, SUM(shares) as total_shares FROM Owns_Stock WHERE tax_id=" + taxid + " GROUP BY stock_symbol)" 
             + "NATURAL JOIN (SELECT stock_symbol, price FROM Stock WHERE date=\"" + sysManager.getDate() + "\")";
@@ -184,7 +184,7 @@ public class StockAccountManager {
             Statement stmt = conn.createStatement(); 
             ResultSet rs = stmt.executeQuery(QUERY);
             if (rs.next()) {
-                return rs.getInt("balance"); 
+                return rs.getLong("balance"); 
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage()); 

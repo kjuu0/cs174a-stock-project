@@ -24,7 +24,7 @@ public class MarketAccountManager {
             ResultSet rs = stmt.executeQuery(QUERY);
            
             while(rs.next()) {
-                accounts.add(new MarketAccount(rs.getInt("tax_id"), rs.getInt("balance")));
+                accounts.add(new MarketAccount(rs.getInt("tax_id"), rs.getLong("balance")));
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage()); 
@@ -33,14 +33,14 @@ public class MarketAccountManager {
         return accounts;
     }
     
-    public int getBalance(int taxid) {
+    public long getBalance(int taxid) {
         final String QUERY = "SELECT balance FROM Market_Account WHERE tax_id=" + taxid; 
         try {
             Statement stmt = conn.createStatement(); 
             ResultSet rs = stmt.executeQuery(QUERY);
            
             if (rs.next()) {
-                return rs.getInt("balance");
+                return rs.getLong("balance");
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage()); 
@@ -49,7 +49,7 @@ public class MarketAccountManager {
         return -1;
     }
 
-    public void deposit(int taxid, int value) {
+    public void deposit(int taxid, long value) {
         final String INSERT_DEPOSIT = "INSERT INTO Deposit "
         + "(transaction_date, timestamp, tax_id, amount) "
         + "VALUES (\"" + sysManager.getDate() + "\"," + System.currentTimeMillis() / 1000 + "," + taxid + "," + value + ")";
@@ -66,7 +66,7 @@ public class MarketAccountManager {
         }
     }
 
-    public boolean withdraw(int taxid, int value) {
+    public boolean withdraw(int taxid, long value) {
         if (value > this.getBalance(taxid)) {
             return false;
         }
@@ -191,7 +191,7 @@ public class MarketAccountManager {
     }
 
     public void addInterest(int taxid, float rate) {
-        int interest = Math.round(getBalance(taxid) * rate);
+        long interest = Math.round(getBalance(taxid) * rate);
         final String INSERT_ACCRUE_INTEREST = "INSERT INTO Accrue_Interest"
             + "(transaction_date, timestamp, tax_id, amount, interest_rate)"
             + "VALUES (\"" + sysManager.getDate() + "\"," + System.currentTimeMillis() / 1000 + "," + taxid + "," + interest + "," + rate + ")";

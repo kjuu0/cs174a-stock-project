@@ -72,7 +72,7 @@ public class TraderShell {
                 listActiveCustomers();
                 break;
                 case "dter":
-                listActiveCustomers();
+                listDTER();
                 break;
                 case "report":
                 promptCustomerReport();
@@ -110,6 +110,7 @@ public class TraderShell {
         final String date = input.nextLine();
         if (date.length() != 10 || date.charAt(4) != '/' || date.charAt(7) != '/') {
             System.out.println("invalid date format"); 
+            return;
         }
 
         try {
@@ -216,18 +217,23 @@ public class TraderShell {
             return;
         }
         
+        if (c == null) {
+            System.out.println("No user exists with that tax ID"); 
+            return;
+        }
+        
         System.out.println("---------- Customer Report ----------");
         System.out.println(c);
-        final int marketBalance = controller.getBalance(c.taxid);
+        final long marketBalance = controller.getBalance(c.taxid);
         System.out.println(String.format("Market Account Balance: $%d.%02d", marketBalance / 100, marketBalance % 100));
         System.out.println("Stock Account Holdings:");
         List<StockAccountData> stockData = controller.getOwnedStocks(c.taxid);
         for (StockAccountData d : stockData) {
             System.out.println(String.format("%s: %dx", d.getSymbol(), d.getShares()));
         }
-        final int stockBalance = controller.getStockAccountBalance(c.taxid);
+        final long stockBalance = controller.getStockAccountBalance(c.taxid);
         System.out.println(String.format("Stock Account Balance: $%d.%02d", stockBalance / 100, stockBalance % 100));
-        final int totalBalance = marketBalance + stockBalance;
+        final long totalBalance = marketBalance + stockBalance;
         System.out.println(String.format("Total Balance: $%d.%02d", totalBalance / 100, totalBalance % 100));
     }
 
@@ -256,9 +262,9 @@ public class TraderShell {
         
         for(int i = 0; i < accounts.size(); i++) {
             MarketAccount account = accounts.get(i);
-            final int prevBalance = controller.getBalance(account.getTaxID());
+            final long prevBalance = controller.getBalance(account.getTaxID());
             controller.addInterest(account.getTaxID());
-            final int newBalance = controller.getBalance(account.getTaxID());
+            final long newBalance = controller.getBalance(account.getTaxID());
 
             System.out.println(String.format("%s - INTEREST for account %d: $%d.%02d + (%.2f * $%d.%02d) = $%d.%02d", 
             controller.getDate(),
@@ -274,18 +280,45 @@ public class TraderShell {
     }
     
     public static void promptTopMovies() {
-        System.out.print("Enter the lowest rating: ");
-        final String sRating = input.nextLine();
-        int rating = 0;
-        for (char c : sRating.toCharArray()) {
-            if (c == '.') continue;
-            rating = rating * 10 + (c - '0'); 
+        System.out.print("Enter the lowest rating out of 10 (4.24, 4): ");
+        
+        final String valueString = input.nextLine();
+        int decimalIndex = valueString.indexOf(".");
+        long value;
+        if (decimalIndex == -1) { //whole dollars
+            try {
+                value = Long.parseLong(valueString) * 10;
+            } catch (NumberFormatException e) {
+                System.out.println("invalid amount format");
+                return;
+            }
+        } else {
+            try {
+                long whole = Long.parseLong(valueString.substring(0, decimalIndex));
+                long decimal = Long.parseLong(valueString.substring(decimalIndex + 1));
+                value = whole * 10 + decimal;
+            } catch (NumberFormatException e) {
+                System.out.println("invalid amount format");
+                return;
+            }
         }
+
+        if (value < 0 || value > 100) {
+            System.out.println("Invalid rating");
+            return;
+        }
+
         System.out.print("Enter the earliest year in your range: "); 
         final int start = input.nextInt();
         System.out.print("Enter the last year in your range: "); 
         final int end = input.nextInt();
-        List<String> names = controller.getTopMovieNames(rating, start, end);
+    
+        if (start > end) {
+            System.out.println("Last year in range can't be less than start year in range"); 
+            return;
+        }
+    
+        List<String> names = controller.getTopMovieNames((int)value, start, end);
         if (names.isEmpty()) {
             System.out.println("There are no movies that fit the criteria");
         } else {
@@ -378,9 +411,9 @@ public class TraderShell {
     }
     
     public static void displayBalance() {
-        final int balance = controller.getBalance(); 
+        final long balance = controller.getBalance(); 
         if (balance != -1) {
-            int bInt = balance / 100, bDec = balance % 100;
+            long bInt = balance / 100, bDec = balance % 100;
             System.out.println(String.format("Current balance: $%d.%02d", bInt, bDec)); 
         }
     }
@@ -389,18 +422,18 @@ public class TraderShell {
         System.out.print("Enter the amount you want to deposit (ex. 4.24, 424, 4.20): $");
         final String valueString = input.nextLine();
         int decimalIndex = valueString.indexOf(".");
-        int value;
+        long value;
         if (decimalIndex == -1) { //whole dollars
             try {
-                value = Integer.parseInt(valueString) * 100;
+                value = Long.parseLong(valueString) * 100;
             } catch (NumberFormatException e) {
                 System.out.println("invalid amount format");
                 return;
             }
         } else {
             try {
-                int dollars = Integer.parseInt(valueString.substring(0, decimalIndex));
-                int cents = Integer.parseInt(valueString.substring(decimalIndex + 1));
+                long dollars = Long.parseLong(valueString.substring(0, decimalIndex));
+                long cents = Long.parseLong(valueString.substring(decimalIndex + 1));
                 if (decimalIndex == valueString.length() - 2) {
                     cents *= 10;
                 }
@@ -410,6 +443,12 @@ public class TraderShell {
                 return;
             }
         }
+       
+        if (value <= 0) {
+            System.out.println("Cannot deposit negative or zero amount");
+            return;
+        }
+
         if (!controller.deposit(value)) {
             System.out.println(String.format("Failed to deposit $%d.%02d!", value / 100, value % 100));
         } else {
@@ -424,18 +463,18 @@ public class TraderShell {
         System.out.print("Enter the amount you want to withdraw (ex. 4.24, 424, 4.20): $");
         final String valueString = input.nextLine();
         int decimalIndex = valueString.indexOf(".");
-        int value;
+        long value;
         if (decimalIndex == -1) { //whole dollars
             try {
-                value = Integer.parseInt(valueString) * 100;
+                value = Long.parseLong(valueString) * 100;
             } catch (NumberFormatException e) {
                 System.out.println("invalid amount format");
                 return;
             }
         } else {
             try {
-                int dollars = Integer.parseInt(valueString.substring(0, decimalIndex));
-                int cents = Integer.parseInt(valueString.substring(decimalIndex + 1));
+                long dollars = Long.parseLong(valueString.substring(0, decimalIndex));
+                long cents = Long.parseLong(valueString.substring(decimalIndex + 1));
                 if (decimalIndex == valueString.length() - 2) {
                     cents *= 10;
                 }
@@ -445,6 +484,12 @@ public class TraderShell {
                 return;
             }
         }
+
+        if (value <= 0) {
+            System.out.println("Cannot withdraw negative or zero amount");
+            return;
+        }
+
         if (!controller.withdraw(value)) {
             System.out.println(String.format("Failed to withdraw $%d.%02d!", value / 100, value % 100));
         } else {
@@ -604,6 +649,20 @@ public class TraderShell {
             System.out.println("buy");
             System.out.println("sell");
             System.out.println("stock_transactions");
+            System.out.println("market_transactions");
+            System.out.println("stock_info");
+            System.out.println("movie_info");
+            System.out.println("top_movies");
+            System.out.println("add_interest");
+            System.out.println("monthly_statement");
+            System.out.println("dter");
+            System.out.println("report");
+            System.out.println("delete");
+            System.out.println("open");
+            System.out.println("close");
+            System.out.println("set_date");
+            System.out.println("set_stock");
+            System.out.println("active_customers");
         }
         System.out.println("reset");
         System.out.println("help");
