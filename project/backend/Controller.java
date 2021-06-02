@@ -49,6 +49,67 @@ public class Controller {
         }
     }
 
+    public void listDTER() {
+        if (!isManager) {
+            System.out.println("You are not authorized to use this command!");
+            return;
+        }
+
+        List<Customer> customers = userManager.getAllUsers();
+        
+        System.out.println("---------- Government Drug & Tax Evasion Report ----------");
+        for(Customer c:customers) {
+            List<AccrueInterestTransaction> accruedInterests = maManager.getAllAccruedInterestsThisMonth(c.taxid);
+            List<SellTransaction> sells = saManager.getSellTransactionsThisMonth(c.taxid);
+            
+            int totalGain = 0, totalLoss = 0, totalInterest = 0;
+            int i = 0, s = 0;
+            while (i < accruedInterests.size() || s < sells.size()) {
+                final int iTimestamp = i < accruedInterests.size() ? (int)accruedInterests.get(i).getTimestamp() : Integer.MAX_VALUE;
+                final int sTimestamp = s < sells.size() ? (int)sells.get(s).getTimestamp() : Integer.MAX_VALUE;
+
+                int min = Integer.min(sTimestamp, sTimestamp);
+                if (min == iTimestamp) {
+                    System.out.println(accruedInterests.get(i));
+                    totalInterest += accruedInterests.get(i).getAmount();
+                    i++;
+                } else if (min == sTimestamp){
+                    System.out.println(sells.get(s));
+                    int diff = sells.get(s).getNetDifference();
+                    if (diff > 0) {
+                        totalGain += diff;
+                    } else {
+                        totalLoss += diff;
+                    }
+                    s++;
+                }
+            }
+
+            for (; i < accruedInterests.size(); i++) {
+                System.out.println(accruedInterests.get(i));
+                totalInterest += accruedInterests.get(i).getAmount();
+            };
+            for (; s < sells.size(); s++) {
+                System.out.println(sells.get(s));
+                
+                int diff = sells.get(s).getNetDifference();
+                if (diff > 0) {
+                    totalGain += diff;
+                } else {
+                    totalLoss += diff;
+                }
+            };
+
+            int totalEarnings = totalGain + totalLoss + totalInterest;
+
+            if (totalEarnings > 1000000) {
+                System.out.println(String.format("%d - %s earned $%d.%02d", c.taxid, c.name, totalEarnings / 100, totalEarnings % 100));
+            }
+        }
+        System.out.println("--------------------------------------------");
+
+    }
+
     public void listActiveCustomers() {
         if (!isManager) {
             System.out.println("You are not authorized to use this command!");
@@ -138,8 +199,21 @@ public class Controller {
     
         for (; d < deposits.size(); d++) System.out.println(deposits.get(d));
         for (; w < withdraws.size(); w++) System.out.println(withdraws.get(w));
+        for (; i < accruedInterests.size(); i++) {
+            System.out.println(accruedInterests.get(i));
+            totalInterest += accruedInterests.get(i).getAmount();
+        };
         for (; b < buys.size(); b++) System.out.println(buys.get(b));
-        for (; s < sells.size(); s++) System.out.println(sells.get(s));
+        for (; s < sells.size(); s++) {
+            System.out.println(sells.get(s));
+            
+            int diff = sells.get(s).getNetDifference();
+            if (diff > 0) {
+                totalGain += diff;
+            } else {
+                totalLoss += diff;
+            }
+        };
         
         System.out.println(String.format("\nTotal Gains: $%d.%02d", totalGain / 100, totalGain % 100));
         System.out.println(String.format("Total Losses: $%d.%02d", totalLoss / 100, totalLoss % 100));

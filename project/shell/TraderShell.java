@@ -71,6 +71,9 @@ public class TraderShell {
                 case "active_customers":
                 listActiveCustomers();
                 break;
+                case "dter":
+                listActiveCustomers();
+                break;
 
             }
             System.out.print("> ");
@@ -79,6 +82,11 @@ public class TraderShell {
 
         input.close();
     }
+
+    public static void listDTER() {
+        controller.listDTER();
+    }
+    
     public static void listActiveCustomers() {
         controller.listActiveCustomers();
     }
