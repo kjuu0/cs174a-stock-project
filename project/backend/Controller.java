@@ -76,6 +76,15 @@ public class Controller {
         return false;
     }
     
+    public boolean setMarketStatus(int status) {
+        if (!isManager) {
+            System.out.println("Must be a manager to update market status"); 
+            return false;
+        } 
+        
+        return sysManager.updateMarketStatus(status);
+    }
+    
     public void listDTER() {
         if (!isManager) {
             System.out.println("You are not authorized to use this command!");

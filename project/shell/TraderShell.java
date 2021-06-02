@@ -80,7 +80,12 @@ public class TraderShell {
                 case "delete":
                 promptDeleteTransactions();
                 break;
-
+                case "open":
+                openMarket();
+                break;
+                case "close":
+                closeMarket();
+                break;
             }
             System.out.print("> ");
             cmd = input.nextLine();
@@ -88,6 +93,19 @@ public class TraderShell {
 
         input.close();
     }
+    
+    public static void openMarket() {
+        if (controller.setMarketStatus(1)) {
+            System.out.println("Market opened"); 
+        }
+    }
+    
+    public static void closeMarket() {
+        if (controller.setMarketStatus(0)) {
+            System.out.println("Market closed");
+        } 
+    }
+
     
     public static void promptDeleteTransactions() {
         if (!controller.isManager()) {
