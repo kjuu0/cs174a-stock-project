@@ -15,6 +15,23 @@ public class MarketAccountManager {
         conn = c; 
         sysManager = sm;
     }
+
+    public List<MarketAccount> getAllMarketAccounts() {
+        List<MarketAccount> accounts = new ArrayList<>();
+        final String QUERY = "SELECT * from Market_Account";
+        try {
+            Statement stmt = conn.createStatement(); 
+            ResultSet rs = stmt.executeQuery(QUERY);
+           
+            while(rs.next()) {
+                accounts.add(new MarketAccount(rs.getInt("tax_id"), rs.getInt("balance")));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage()); 
+        }
+
+        return accounts;
+    }
     
     public int getBalance(int taxid) {
         final String QUERY = "SELECT balance FROM Market_Account WHERE tax_id=" + taxid; 
@@ -117,5 +134,19 @@ public class MarketAccountManager {
         }
         
         return deposits;
+    }
+
+    public void addInterest(int taxid, float rate) {
+        int balance = getBalance(taxid);
+        int newBalance = balance + Math.round(balance * rate);
+        final String UPDATE_BALANCE = "UPDATE Market_Account SET balance = balance + (balance * " + rate + ") WHERE tax_id = " + taxid;
+
+        try {
+            Statement stmt = conn.createStatement();
+            stmt.executeUpdate(UPDATE_BALANCE);
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage()); 
+        }
     }
 }

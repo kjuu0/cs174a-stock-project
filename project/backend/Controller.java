@@ -49,6 +49,26 @@ public class Controller {
         }
     }
 
+    public float getInterestRate() {
+        return sysManager.getInterestRate();
+    }
+
+    public void addInterest(int taxid) {
+        if (!isLoggedIn || !isManager) {
+            System.out.println("You are not authorzied to use this command!");
+        }
+
+        maManager.addInterest(taxid, sysManager.getInterestRate());
+    }
+
+    public List<MarketAccount> getAllMarketAccounts() {
+        if (!isLoggedIn || !isManager) {
+            System.out.println("You are not authorzied to use this command!");
+        }
+
+        return maManager.getAllMarketAccounts();
+    }
+
     public List<DepositTransaction> getDepositTransactions() {
         if (!isLoggedIn) {
             System.out.println("Cannot get transaction info if you're not logged in"); 
@@ -102,6 +122,10 @@ public class Controller {
         return user != null;
     }
 
+    public boolean isManager() {
+        return isManager;
+    }
+
     public boolean isLoggedIn() {
         return isLoggedIn;
     }
@@ -125,14 +149,18 @@ public class Controller {
        
         return saManager.getStockAccountData(user.taxid);
     }
-    
-    public int getBalance() {
+
+    public int getBalance(int taxid) {
         if (!isLoggedIn) {
             System.out.println("Must be logged in to get market account balance");
             return -1;
-        } 
-        
-        return maManager.getBalance(user.taxid);
+        }
+
+        return maManager.getBalance(taxid);
+    }
+    
+    public int getBalance() {
+        return getBalance(user.taxid);
     }
 
     public boolean deposit(int value) {

@@ -62,6 +62,9 @@ public class TraderShell {
                 case "top_movies":
                 promptTopMovies();
                 break;
+                case "add_interest":
+                addInterest();
+                break;
 
             }
             System.out.print("> ");
@@ -69,6 +72,28 @@ public class TraderShell {
         }
 
         input.close();
+    }
+
+    public static void addInterest() {
+        List<MarketAccount> accounts = controller.getAllMarketAccounts();
+        
+        for(int i = 0; i < accounts.size(); i++) {
+            MarketAccount account = accounts.get(i);
+            final int prevBalance = controller.getBalance(account.getTaxID());
+            controller.addInterest(account.getTaxID());
+            final int newBalance = controller.getBalance(account.getTaxID());
+
+            System.out.println(String.format("%s - INTEREST for account %d: $%d.%02d + (%.2f * $%d.%02d) = $%d.%02d", 
+            controller.getDate(),
+            account.getTaxID(), 
+            prevBalance / 100, 
+            prevBalance % 100,
+            controller.getInterestRate(), 
+            prevBalance / 100, 
+            prevBalance % 100,
+            newBalance / 100, 
+            newBalance % 100));
+        }
     }
     
     public static void promptTopMovies() {

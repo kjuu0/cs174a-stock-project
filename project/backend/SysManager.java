@@ -38,4 +38,18 @@ public class SysManager {
 
         return false;
     }
+
+    public float getInterestRate() {
+        final String QUERY = "SELECT interest_rate FROM Sys_Info";
+
+        try {
+            Statement stmt = this.conn.createStatement();
+            ResultSet rs = stmt.executeQuery(QUERY);
+            return rs.getFloat("interest_rate");
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return -1;
+    }
 }
