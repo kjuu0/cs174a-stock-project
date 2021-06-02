@@ -47,6 +47,24 @@ public class Controller {
             System.out.println(e.getMessage());
         }
     }
+
+    public List<DepositTransaction> getDepositTransactions() {
+        if (!isLoggedIn) {
+            System.out.println("Cannot get transaction info if you're not logged in"); 
+            return new ArrayList<>();
+        } 
+        
+        return maManager.getAllDeposits(user.taxid);
+    }
+
+    public List<WithdrawTransaction> getWithdrawTransactions() {
+        if (!isLoggedIn) {
+            System.out.println("Cannot get transaction info if you're not logged in"); 
+            return new ArrayList<>();
+        } 
+        
+        return maManager.getAllWithdraws(user.taxid);
+    }
     
     public List<BuyTransaction> getStockBuyTransactions() {
         if (!isLoggedIn) {

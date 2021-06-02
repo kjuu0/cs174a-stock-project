@@ -2,6 +2,8 @@ package backend;
 
 import java.sql.Connection;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -69,5 +71,51 @@ public class MarketAccountManager {
         }
 
         return true;
+    }
+    
+    public List<DepositTransaction> getAllDeposits(int taxid) {
+        List<DepositTransaction> deposits = new ArrayList<>();
+        final String QUERY = "SELECT * FROM Deposit WHERE tax_id=" + taxid + " ORDER BY timestamp DESC";
+
+        try {
+            Statement stmt = conn.createStatement(); 
+            ResultSet rs = stmt.executeQuery(QUERY);
+           
+            while (rs.next()) {
+                deposits.add(new DepositTransaction(
+                    rs.getInt("transaction_id"),
+                    rs.getString("transaction_date"),
+                    rs.getLong("timestamp"),
+                    rs.getInt("tax_id"),
+                    rs.getInt("amount")));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage()); 
+        }
+        
+        return deposits;
+    }
+    
+    public List<WithdrawTransaction> getAllWithdraws(int taxid) {
+        List<WithdrawTransaction> deposits = new ArrayList<>();
+        final String QUERY = "SELECT * FROM Withdraw WHERE tax_id=" + taxid + " ORDER BY timestamp DESC";
+
+        try {
+            Statement stmt = conn.createStatement(); 
+            ResultSet rs = stmt.executeQuery(QUERY);
+           
+            while (rs.next()) {
+                deposits.add(new WithdrawTransaction(
+                    rs.getInt("transaction_id"),
+                    rs.getString("transaction_date"),
+                    rs.getLong("timestamp"),
+                    rs.getInt("tax_id"),
+                    rs.getInt("amount")));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage()); 
+        }
+        
+        return deposits;
     }
 }

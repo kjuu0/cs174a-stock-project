@@ -47,6 +47,9 @@ public class TraderShell {
                 case "balance":
                 displayBalance();
                 break;
+                case "market_transactions":
+                displayMarketTransactions();
+                break;
                 case "stock_transactions":
                 displayStockTransactions();
                 break;
@@ -106,6 +109,36 @@ public class TraderShell {
         for (StockProfile p : profiles) {
             System.out.println(p); 
         }
+    }
+
+    public static void displayMarketTransactions() {
+        if (!controller.isLoggedIn()) {
+            System.out.println("Must be logged in to display transaction history"); 
+            return;
+        }
+        
+        List<DepositTransaction> deposits = controller.getDepositTransactions();
+        List<WithdrawTransaction> withdraws = controller.getWithdrawTransactions();
+
+        if (deposits.size() == 0 && withdraws.size() == 0) {
+            System.out.println("No market transaction history"); 
+        }
+        
+        int i = 0, j = 0;
+        while (i < deposits.size() && j < withdraws.size()) {
+            final long bTimestamp = deposits.get(i).getTimestamp();
+            final long sTimestamp = withdraws.get(j).getTimestamp();
+            if (bTimestamp >= sTimestamp) {
+                System.out.println(deposits.get(i));
+                i++;
+            } else {
+                System.out.println(withdraws.get(j)); 
+                j++;
+            }
+        }
+    
+        for (; i < deposits.size(); i++) System.out.println(deposits.get(i));
+        for (; j < withdraws.size(); j++) System.out.println(withdraws.get(j));
     }
     
     public static void displayStockTransactions() {
