@@ -74,6 +74,9 @@ public class TraderShell {
                 case "dter":
                 listActiveCustomers();
                 break;
+                case "report":
+                promptCustomerReport();
+                break;
 
             }
             System.out.print("> ");
@@ -81,6 +84,35 @@ public class TraderShell {
         }
 
         input.close();
+    }
+    
+    public static void promptCustomerReport() {
+        Customer c;
+        if (controller.isManager()) {
+            System.out.print("Enter a customer tax id: "); 
+            final int taxid = input.nextInt();
+    
+            c = controller.getCustomer(taxid); 
+        } else if (controller.isLoggedIn()) {
+            c = controller.getCustomer(); 
+        } else {
+            System.out.println("Must be either a manager or logged in to a get a customer report"); 
+            return;
+        }
+        
+        System.out.println("---------- Customer Report ----------");
+        System.out.println(c);
+        final int marketBalance = controller.getBalance(c.taxid);
+        System.out.println(String.format("Market Account Balance: $%d.%02d", marketBalance / 100, marketBalance % 100));
+        System.out.println("Stock Account Holdings:");
+        List<StockAccountData> stockData = controller.getOwnedStocks(c.taxid);
+        for (StockAccountData d : stockData) {
+            System.out.println(String.format("%s: %dx", d.getSymbol(), d.getShares()));
+        }
+        final int stockBalance = controller.getStockAccountBalance(c.taxid);
+        System.out.println(String.format("Stock Account Balance: $%d.%02d", stockBalance / 100, stockBalance % 100));
+        final int totalBalance = marketBalance + stockBalance;
+        System.out.println(String.format("Total Balance: $%d.%02d", totalBalance / 100, totalBalance % 100));
     }
 
     public static void listDTER() {

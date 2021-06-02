@@ -158,4 +158,38 @@ public class StockAccountManager {
         }
         return data;
     }
+    
+    public List<StockAccountData> getOwnedStocks(int taxid) {
+        List<StockAccountData> data = new ArrayList<>();
+        final String QUERY = "SELECT stock_symbol, SUM(shares) AS total_shares FROM Owns_Stock WHERE tax_id=" + taxid + " GROUP BY stock_symbol"; 
+        try {
+            Statement stmt = conn.createStatement(); 
+            ResultSet rs = stmt.executeQuery(QUERY);
+            while (rs.next()) {
+                // We don't care about price per share here
+                data.add(new StockAccountData(rs.getString("stock_symbol"), -1, rs.getInt("total_shares"))); 
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage()); 
+        }
+        return data;
+    }
+    
+    public int getStockAccountBalance(int taxid) {
+        final String QUERY = "SELECT SUM(price * total_shares) as balance " 
+            + "FROM (SELECT stock_symbol, SUM(shares) as total_shares FROM Owns_Stock WHERE tax_id=" + taxid + " GROUP BY stock_symbol)" 
+            + "NATURAL JOIN (SELECT stock_symbol, price FROM Stock WHERE date=\"" + sysManager.getDate() + "\")";
+
+        try {
+            Statement stmt = conn.createStatement(); 
+            ResultSet rs = stmt.executeQuery(QUERY);
+            if (rs.next()) {
+                return rs.getInt("balance"); 
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage()); 
+        }
+        
+        return -1;
+    }
 }

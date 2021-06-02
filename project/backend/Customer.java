@@ -38,4 +38,8 @@ public class Customer {
         }
         
     }
+    
+    public String toString() {
+        return String.format("Name: %s\nUsername: %s\nAddress: %s, %s\nPhone: %s\nEmail: %s\nTax ID: %d", name, username, address, state, phone, email, taxid); 
+    }
 }
