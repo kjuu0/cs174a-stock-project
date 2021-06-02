@@ -11,10 +11,26 @@ public class SellTransaction extends Transaction {
             this.shares = shares;
             this.priceSold = priceSold;
      }
+
+     public Stock getStockSold() {
+            return this.stockSold;
+     }
+
+     public int getShares() {
+            return this.shares;
+     }
+
+     public int getPriceSold() {
+            return this.priceSold;
+     }
+
+     public int getNetDifference() {
+            return (this.priceSold - stockSold.getPrice()) * shares;
+     }
      
      public String toString() {
             int pbInt = stockSold.getPrice() / 100, pbDec = stockSold.getPrice() % 100; 
             int psInt = priceSold / 100, psDec = priceSold % 100;
-            return String.format("SELL: %s | %s | %dx | $%d.%02d -> $%d.%02d", this.date, stockSold.getSymbol(), shares, pbInt, pbDec, psInt, psDec);
+            return String.format("%s - SELL %dx %s $%d.%02d/share at $%d.%02d/share", this.date, this.shares, stockSold.getSymbol(), pbInt, pbDec, psInt, psDec);
      }
 }

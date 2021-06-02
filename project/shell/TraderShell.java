@@ -62,6 +62,18 @@ public class TraderShell {
                 case "top_movies":
                 promptTopMovies();
                 break;
+                case "add_interest":
+                addInterest();
+                break;
+                case "monthly_statement":
+                promptMonthlyStatement();
+                break;
+                case "active_customers":
+                listActiveCustomers();
+                break;
+                case "dter":
+                listActiveCustomers();
+                break;
 
             }
             System.out.print("> ");
@@ -69,6 +81,48 @@ public class TraderShell {
         }
 
         input.close();
+    }
+
+    public static void listDTER() {
+        controller.listDTER();
+    }
+    
+    public static void listActiveCustomers() {
+        controller.listActiveCustomers();
+    }
+
+    public static void promptMonthlyStatement() {
+        if (controller.isManager()) {
+            System.out.print("Enter a market account's tax id: ");
+            final int taxid = input.nextInt();
+
+            controller.getMonthlyStatement(taxid);
+        } else {
+            controller.getMonthlyStatement();
+        }
+
+    }
+
+    public static void addInterest() {
+        List<MarketAccount> accounts = controller.getAllMarketAccounts();
+        
+        for(int i = 0; i < accounts.size(); i++) {
+            MarketAccount account = accounts.get(i);
+            final int prevBalance = controller.getBalance(account.getTaxID());
+            controller.addInterest(account.getTaxID());
+            final int newBalance = controller.getBalance(account.getTaxID());
+
+            System.out.println(String.format("%s - INTEREST for account %d: $%d.%02d + (%.2f * $%d.%02d) = $%d.%02d", 
+            controller.getDate(),
+            account.getTaxID(), 
+            prevBalance / 100, 
+            prevBalance % 100,
+            controller.getInterestRate(), 
+            prevBalance / 100, 
+            prevBalance % 100,
+            newBalance / 100, 
+            newBalance % 100));
+        }
     }
     
     public static void promptTopMovies() {
@@ -261,35 +315,13 @@ public class TraderShell {
         }
     
         System.out.println("Stocks you own:");
-        for (StockAccountData d : saData) {
-            System.out.println(d); 
+        for (int d = 0; d < saData.size(); d++) {
+            System.out.println(String.format("[%d] %s", d, saData.get(d))); 
         }
         
-        System.out.print("Enter the stock symbol you wish to sell: ");
-        final String symbol = input.nextLine();
-        System.out.print("Enter the price of the stock you wish to sell: ");
-        final String sPrice = input.nextLine();
-       
-        int price = 0;
-        for (char c : sPrice.toCharArray()) {
-            if (c == '.') continue;
-            price = price * 10 + (c - '0'); // dirty ASCII trick, maybe cleanup later
-        }
-        
-        // Again, linear check here... replace if this becomes a problem
-        // Can use set, also since we group by stock symbol we can optimize using that
-        StockAccountData tbs = null;
-        for (StockAccountData d : saData) {
-            if (d.getSymbol().equals(symbol) && d.getPrice() == price) {
-                tbs = d;
-                break;
-            }
-        }
-        
-        if (tbs == null) {
-            System.out.println("You don't own " + symbol + " at " + price);
-            return;
-        }
+        System.out.print("Enter the index you wish to sell: ");
+        final int index = input.nextInt();
+        StockAccountData tbs = saData.get(index);
 
         System.out.print("Enter the number of shares you wish to sell: ");
         final int shares = input.nextInt();

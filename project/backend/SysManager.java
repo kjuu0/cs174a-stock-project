@@ -25,6 +25,18 @@ public class SysManager {
         return "";
     }
     
+    public String getYear() {
+        return getDate().substring(0, "YYYY".length());
+    }
+
+    public String getMonth() {
+        return getDate().substring("YYYY/".length(), "YYYY/MM".length());
+    }
+
+    public String getDay() {
+        return getDate().substring("YYYY/MM/".length());
+    }
+    
     public boolean isMarketOpen() {
         final String QUERY = "SELECT market_status FROM Sys_Info";
 
@@ -37,5 +49,19 @@ public class SysManager {
         }
 
         return false;
+    }
+
+    public float getInterestRate() {
+        final String QUERY = "SELECT interest_rate FROM Sys_Info";
+
+        try {
+            Statement stmt = this.conn.createStatement();
+            ResultSet rs = stmt.executeQuery(QUERY);
+            return rs.getFloat("interest_rate");
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return -1;
     }
 }

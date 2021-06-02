@@ -42,4 +42,21 @@ public class UserManager {
 
         return false;
     }
+
+    public List<Customer> getAllUsers() {
+        List<Customer> customers = new ArrayList<>();
+        final String QUERY = "SELECT * from Customer";
+
+        try {
+            Statement stmt = this.conn.createStatement();
+            ResultSet rs = stmt.executeQuery(QUERY);
+            while (rs.next()) {
+                customers.add(new Customer(rs));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return customers;
+    }
 }
