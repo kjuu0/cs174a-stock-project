@@ -112,17 +112,21 @@ public class MarketAccountManager {
         
         return deposits;
     }
-    
-    public List<WithdrawTransaction> getAllWithdraws(int taxid) {
-        List<WithdrawTransaction> deposits = new ArrayList<>();
-        final String QUERY = "SELECT * FROM Withdraw WHERE tax_id=" + taxid + " ORDER BY timestamp DESC";
+
+    public List<DepositTransaction> getAllDepositsThisMonth(int taxid) {
+        String year = sysManager.getYear();
+        String month = sysManager.getMonth();
+        List<DepositTransaction> deposits = new ArrayList<>();
+        final String QUERY = "SELECT * FROM Deposit WHERE tax_id=" + taxid
+            + " AND transaction_date LIKE \"" + year + "/" + month + "/" + "%\""
+            + " ORDER BY timestamp DESC";
 
         try {
             Statement stmt = conn.createStatement(); 
             ResultSet rs = stmt.executeQuery(QUERY);
            
             while (rs.next()) {
-                deposits.add(new WithdrawTransaction(
+                deposits.add(new DepositTransaction(
                     rs.getInt("transaction_id"),
                     rs.getString("transaction_date"),
                     rs.getLong("timestamp"),
@@ -135,16 +139,124 @@ public class MarketAccountManager {
         
         return deposits;
     }
+    
+    public List<WithdrawTransaction> getAllWithdraws(int taxid) {
+        List<WithdrawTransaction> withdraws = new ArrayList<>();
+        final String QUERY = "SELECT * FROM Withdraw WHERE tax_id=" + taxid + " ORDER BY timestamp DESC";
+
+        try {
+            Statement stmt = conn.createStatement(); 
+            ResultSet rs = stmt.executeQuery(QUERY);
+           
+            while (rs.next()) {
+                withdraws.add(new WithdrawTransaction(
+                    rs.getInt("transaction_id"),
+                    rs.getString("transaction_date"),
+                    rs.getLong("timestamp"),
+                    rs.getInt("tax_id"),
+                    rs.getInt("amount")));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage()); 
+        }
+        
+        return withdraws;
+    }
+    
+    public List<WithdrawTransaction> getAllWithdrawsThisMonth(int taxid) {
+        String year = sysManager.getYear();
+        String month = sysManager.getMonth();
+        List<WithdrawTransaction> withdraws = new ArrayList<>();
+        final String QUERY = "SELECT * FROM Withdraw WHERE tax_id=" + taxid
+            + " AND transaction_date LIKE \"" + year + "/" + month + "/" + "%\""
+            + " ORDER BY timestamp DESC";
+
+        try {
+            Statement stmt = conn.createStatement(); 
+            ResultSet rs = stmt.executeQuery(QUERY);
+           
+            while (rs.next()) {
+                withdraws.add(new WithdrawTransaction(
+                    rs.getInt("transaction_id"),
+                    rs.getString("transaction_date"),
+                    rs.getLong("timestamp"),
+                    rs.getInt("tax_id"),
+                    rs.getInt("amount")));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage()); 
+        }
+        
+        return withdraws;
+    }
 
     public void addInterest(int taxid, float rate) {
-        final String UPDATE_BALANCE = "UPDATE Market_Account SET balance = balance + (balance * " + rate + ") WHERE tax_id = " + taxid;
+        int interest = Math.round(getBalance(taxid) * rate);
+        final String INSERT_ACCRUE_INTEREST = "INSERT INTO Accrue_Interest"
+            + "(transaction_date, timestamp, tax_id, amount, interest_rate)"
+            + "VALUES (\"" + sysManager.getDate() + "\"," + System.currentTimeMillis() / 1000 + "," + taxid + "," + interest + "," + rate + ")";
+        final String UPDATE_BALANCE = "UPDATE Market_Account SET balance = balance + " + interest + " WHERE tax_id = " + taxid;
 
         try {
             Statement stmt = conn.createStatement();
-            stmt.executeUpdate(UPDATE_BALANCE);
+            stmt.addBatch(INSERT_ACCRUE_INTEREST);
+            stmt.addBatch(UPDATE_BALANCE);
+            stmt.executeBatch();
 
         } catch (SQLException e) {
             System.out.println(e.getMessage()); 
         }
+    }
+    
+    public List<AccrueInterestTransaction> getAllAccruedInterests(int taxid) {
+        List<AccrueInterestTransaction> accruedInterests = new ArrayList<>();
+        final String QUERY = "SELECT * FROM Accrue_Interest WHERE tax_id=" + taxid + " ORDER BY timestamp DESC";
+
+        try {
+            Statement stmt = conn.createStatement(); 
+            ResultSet rs = stmt.executeQuery(QUERY);
+           
+            while (rs.next()) {
+                accruedInterests.add(new AccrueInterestTransaction(
+                    rs.getInt("transaction_id"),
+                    rs.getString("transaction_date"),
+                    rs.getLong("timestamp"),
+                    rs.getInt("tax_id"),
+                    rs.getInt("amount"),
+                    rs.getFloat("interest_rate")));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage()); 
+        }
+        
+        return accruedInterests;
+    }
+    
+    public List<AccrueInterestTransaction> getAllAccruedInterestsThisMonth(int taxid) {
+        String year = sysManager.getYear();
+        String month = sysManager.getMonth();
+        List<AccrueInterestTransaction> accruedInterests = new ArrayList<>();
+        final String QUERY = "SELECT * FROM Accrue_Interest WHERE tax_id=" + taxid
+        + " AND transaction_date LIKE \"" + year + "/" + month + "/" + "%\""
+        + " ORDER BY timestamp DESC";
+
+        try {
+            Statement stmt = conn.createStatement(); 
+            ResultSet rs = stmt.executeQuery(QUERY);
+           
+            while (rs.next()) {
+                accruedInterests.add(new AccrueInterestTransaction(
+                    rs.getInt("transaction_id"),
+                    rs.getString("transaction_date"),
+                    rs.getLong("timestamp"),
+                    rs.getInt("tax_id"),
+                    rs.getInt("amount"),
+                    rs.getFloat("interest_rate")));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage()); 
+        }
+        
+        return accruedInterests;
     }
 }

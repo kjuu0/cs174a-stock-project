@@ -65,6 +65,9 @@ public class TraderShell {
                 case "add_interest":
                 addInterest();
                 break;
+                case "monthly_statement":
+                promptMonthlyStatement();
+                break;
 
             }
             System.out.print("> ");
@@ -72,6 +75,18 @@ public class TraderShell {
         }
 
         input.close();
+    }
+
+    public static void promptMonthlyStatement() {
+        if (controller.isManager()) {
+            System.out.print("Enter a market account's tax id: ");
+            final int taxid = input.nextInt();
+
+            controller.getMonthlyStatement(taxid);
+        } else {
+            controller.getMonthlyStatement();
+        }
+
     }
 
     public static void addInterest() {
@@ -286,35 +301,13 @@ public class TraderShell {
         }
     
         System.out.println("Stocks you own:");
-        for (StockAccountData d : saData) {
-            System.out.println(d); 
+        for (int d = 0; d < saData.size(); d++) {
+            System.out.println(String.format("[%d] %s", d, saData.get(d))); 
         }
         
-        System.out.print("Enter the stock symbol you wish to sell: ");
-        final String symbol = input.nextLine();
-        System.out.print("Enter the price of the stock you wish to sell: ");
-        final String sPrice = input.nextLine();
-       
-        int price = 0;
-        for (char c : sPrice.toCharArray()) {
-            if (c == '.') continue;
-            price = price * 10 + (c - '0'); // dirty ASCII trick, maybe cleanup later
-        }
-        
-        // Again, linear check here... replace if this becomes a problem
-        // Can use set, also since we group by stock symbol we can optimize using that
-        StockAccountData tbs = null;
-        for (StockAccountData d : saData) {
-            if (d.getSymbol().equals(symbol) && d.getPrice() == price) {
-                tbs = d;
-                break;
-            }
-        }
-        
-        if (tbs == null) {
-            System.out.println("You don't own " + symbol + " at " + price);
-            return;
-        }
+        System.out.print("Enter the index you wish to sell: ");
+        final int index = input.nextInt();
+        StockAccountData tbs = saData.get(index);
 
         System.out.print("Enter the number of shares you wish to sell: ");
         final int shares = input.nextInt();

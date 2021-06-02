@@ -25,6 +25,18 @@ public class SysManager {
         return "";
     }
     
+    public String getYear() {
+        return getDate().substring(0, "YYYY".length());
+    }
+
+    public String getMonth() {
+        return getDate().substring("YYYY/".length(), "YYYY/MM".length());
+    }
+
+    public String getDay() {
+        return getDate().substring("YYYY/MM/".length());
+    }
+    
     public boolean isMarketOpen() {
         final String QUERY = "SELECT market_status FROM Sys_Info";
 

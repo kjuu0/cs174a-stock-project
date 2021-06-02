@@ -9,10 +9,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class StockAccountManager {
-    Connection conn; 
+    Connection conn;
+    SysManager sysManager;
     
-    public StockAccountManager(Connection c) {
-        conn = c; 
+    public StockAccountManager(Connection c, SysManager sm) {
+        conn = c;
+        sysManager = sm;
     }
     
     public List<SellTransaction> getSellTransactions(final int taxid) {
@@ -39,6 +41,36 @@ public class StockAccountManager {
         }
         
         return transactions;
+    }
+
+    public List<SellTransaction> getSellTransactionsThisMonth(final int taxid) {
+        String year = sysManager.getYear();
+        String month = sysManager.getMonth();
+        List<SellTransaction> sells = new ArrayList<>();
+        final String QUERY = "SELECT * FROM Sell WHERE tax_id=" + taxid
+            + " AND transaction_date LIKE \"" + year + "/" + month + "/" + "%\""
+            + " ORDER BY timestamp DESC";
+
+        try {
+            Statement stmt = conn.createStatement(); 
+            ResultSet rs = stmt.executeQuery(QUERY);
+           
+            while (rs.next()) {
+                sells.add(new SellTransaction(
+                    rs.getInt("transaction_id"),
+                    rs.getString("transaction_date"),
+                    rs.getLong("timestamp"),
+                    rs.getInt("tax_id"),
+                    rs.getString("stock_symbol"),
+                    rs.getInt("shares"),
+                    rs.getInt("price_per_share_bought"),
+                    rs.getInt("price_per_share_sold")));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage()); 
+        }
+        
+        return sells;
     } 
     
     public List<BuyTransaction> getBuyTransactions(final int taxid) {
@@ -64,6 +96,35 @@ public class StockAccountManager {
         }
         
         return transactions;
+    } 
+
+    public List<BuyTransaction> getBuyTransactionsThisMonth(final int taxid) {
+        String year = sysManager.getYear();
+        String month = sysManager.getMonth();
+        List<BuyTransaction> buys = new ArrayList<>();
+        final String QUERY = "SELECT * FROM Buy WHERE tax_id=" + taxid
+            + " AND transaction_date LIKE \"" + year + "/" + month + "/" + "%\""
+            + " ORDER BY timestamp DESC";
+
+        try {
+            Statement stmt = conn.createStatement(); 
+            ResultSet rs = stmt.executeQuery(QUERY);
+           
+            while (rs.next()) {
+                buys.add(new BuyTransaction(
+                    rs.getInt("transaction_id"),
+                    rs.getString("transaction_date"),
+                    rs.getLong("timestamp"),
+                    rs.getInt("tax_id"),
+                    rs.getString("stock_symbol"),
+                    rs.getInt("shares"),
+                    rs.getInt("price_per_share")));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage()); 
+        }
+        
+        return buys;
     } 
     
     public int getSharesOwnedAtPrice(final int taxid, final String stockSymbol, final int pricePerShare) {

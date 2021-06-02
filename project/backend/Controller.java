@@ -41,12 +41,82 @@ public class Controller {
             this.sysManager = new SysManager(this.conn);
             this.stockManager = new StockManager(this.conn);
             this.maManager = new MarketAccountManager(this.conn, sysManager);
-            this.saManager = new StockAccountManager(this.conn);
+            this.saManager = new StockAccountManager(this.conn, sysManager);
             this.mManager = new MovieManager(this.conn);
             
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    public void getMonthlyStatement() {
+        getMonthlyStatement(user.taxid);
+    }
+
+    public void getMonthlyStatement(int taxid) {
+        if (!isLoggedIn) {
+            System.out.println("You must be logged in to see your monthly statement.");
+        }
+
+        System.out.println("------------------- BEGIN STATEMENT -------------------");
+        System.out.println(String.format("%s/%s Monthly Statement for Tax ID %d", sysManager.getMonth(), sysManager.getYear(), user.taxid));
+        System.out.println(String.format("Name: %s", user.name));
+        System.out.println(String.format("Email: %s\n", user.email));
+
+        List<WithdrawTransaction> withdraws = maManager.getAllWithdrawsThisMonth(taxid);
+        List<DepositTransaction> deposits = maManager.getAllDepositsThisMonth(taxid);
+        List<AccrueInterestTransaction> accruedInterests = maManager.getAllAccruedInterestsThisMonth(taxid);
+        List<BuyTransaction> buys = saManager.getBuyTransactionsThisMonth(taxid);
+        List<SellTransaction> sells = saManager.getSellTransactionsThisMonth(taxid);
+        
+        System.out.println(String.format("%d Transactions:", withdraws.size() + deposits.size() + buys.size() + sells.size()));
+        
+        int totalGain = 0, totalLoss = 0, totalInterest = 0;
+        int commission = (buys.size() + sells.size()) * 2000;
+        int d = 0, w = 0, i = 0, b = 0, s = 0;
+        while (d < deposits.size() || w < withdraws.size() || i < accruedInterests.size() || b < buys.size() || s < sells.size()) {
+            final int dTimestamp = d < deposits.size() ? (int)deposits.get(d).getTimestamp() : Integer.MAX_VALUE;
+            final int wTimestamp = w < withdraws.size() ? (int)withdraws.get(w).getTimestamp() : Integer.MAX_VALUE;
+            final int iTimestamp = i < accruedInterests.size() ? (int)accruedInterests.get(i).getTimestamp() : Integer.MAX_VALUE;
+            final int bTimestamp = b < buys.size() ? (int)buys.get(b).getTimestamp() : Integer.MAX_VALUE;
+            final int sTimestamp = s < sells.size() ? (int)sells.get(s).getTimestamp() : Integer.MAX_VALUE;
+
+            int min = Integer.min(Integer.min(Integer.min(dTimestamp, wTimestamp),Integer.min(bTimestamp, sTimestamp)), iTimestamp);
+            if (min == dTimestamp) {
+                System.out.println(deposits.get(d));
+                d++;
+            } else if (min == wTimestamp) {
+                System.out.println(withdraws.get(w));
+                w++;
+            } else if (min == iTimestamp) {
+                System.out.println(accruedInterests.get(i));
+                totalInterest += accruedInterests.get(i).getAmount();
+                i++;
+            } else if (min == bTimestamp) {
+                System.out.println(buys.get(b));
+                b++;
+            } else if (min == sTimestamp){
+                System.out.println(sells.get(s));
+                int diff = sells.get(s).getNetDifference();
+                if (diff > 0) {
+                    totalGain += diff;
+                } else {
+                    totalLoss += diff;
+                }
+                s++;
+            }
+        }
+    
+        for (; d < deposits.size(); d++) System.out.println(deposits.get(d));
+        for (; w < withdraws.size(); w++) System.out.println(withdraws.get(w));
+        for (; b < buys.size(); b++) System.out.println(buys.get(b));
+        for (; s < sells.size(); s++) System.out.println(sells.get(s));
+        
+        System.out.println(String.format("\nTotal Gains: $%d.%02d", totalGain / 100, totalGain % 100));
+        System.out.println(String.format("Total Losses: $%d.%02d", totalLoss / 100, totalLoss % 100));
+        System.out.println(String.format("Commission: $%d.%02d", commission / 100, commission % 100));
+        System.out.println(String.format("Interest Acquired: $%d.%02d", totalInterest / 100, totalInterest % 100));
+        System.out.println("\n-------------------- END STATEMENT --------------------");
     }
 
     public float getInterestRate() {
@@ -76,6 +146,7 @@ public class Controller {
         } 
         
         return maManager.getAllDeposits(user.taxid);
+
     }
 
     public List<WithdrawTransaction> getWithdrawTransactions() {
@@ -94,6 +165,19 @@ public class Controller {
         } 
         
         return saManager.getBuyTransactions(user.taxid);
+    }
+    
+    public List<BuyTransaction> getStockBuyTransactionsThisMonth() {
+        return getStockBuyTransactionsThisMonth(user.taxid);
+    }
+
+    public List<BuyTransaction> getStockBuyTransactionsThisMonth(int taxid) {
+        if (!isLoggedIn) {
+            System.out.println("Cannot get transaction info if you're not logged in"); 
+            return new ArrayList<>();
+        } 
+        
+        return saManager.getBuyTransactions(taxid);
     }
     
     public List<SellTransaction> getStockSellTransactions() {
