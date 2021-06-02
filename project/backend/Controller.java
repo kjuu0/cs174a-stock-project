@@ -61,6 +61,21 @@ public class Controller {
         return isLoggedIn ? getCustomer(user.taxid) : null;
     }
     
+    public boolean deleteTransactions(int taxid) {
+        final String[] TABLES = new String[]{"Buy", "Sell", "Accrue_Interest", "Deposit", "Withdraw"};
+        try {
+            Statement stmt = conn.createStatement();
+            for (String table : TABLES) {
+                stmt.addBatch("DELETE FROM " + table + " WHERE tax_id=" + taxid); 
+            }
+            stmt.executeBatch();
+            return true;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return false;
+    }
+    
     public void listDTER() {
         if (!isManager) {
             System.out.println("You are not authorized to use this command!");

@@ -77,6 +77,9 @@ public class TraderShell {
                 case "report":
                 promptCustomerReport();
                 break;
+                case "delete":
+                promptDeleteTransactions();
+                break;
 
             }
             System.out.print("> ");
@@ -84,6 +87,21 @@ public class TraderShell {
         }
 
         input.close();
+    }
+    
+    public static void promptDeleteTransactions() {
+        if (!controller.isManager()) {
+            System.out.println("Must be a manager to delete transactions"); 
+            return;
+        }
+        System.out.print("Enter the tax id of the customer to clear transactions for: ");
+        final int taxid = input.nextInt();
+        
+        if (controller.deleteTransactions(taxid)) {
+            System.out.println("Transactions cleared for " + taxid); 
+        } else {
+            System.out.println("Transactions unsuccessfully cleared"); 
+        }
     }
     
     public static void promptCustomerReport() {
@@ -238,6 +256,11 @@ public class TraderShell {
         // that stuff so we'll go for this manual merging for now. Can look into this later
         List<BuyTransaction> buys = controller.getStockBuyTransactions();
         List<SellTransaction> sells = controller.getStockSellTransactions();
+        
+        if (buys.isEmpty() && sells.isEmpty()) {
+            System.out.println("No stock transaction history");
+            return;
+        }
         
         int i = 0, j = 0;
         while (i < buys.size() && j < sells.size()) {
