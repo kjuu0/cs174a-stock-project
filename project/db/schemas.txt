@@ -41,6 +41,7 @@ CREATE TABLE Owns_Stock (
 CREATE TABLE Accrue_Interest (
     transaction_id INTEGER PRIMARY KEY AUTOINCREMENT,
     transaction_date CHAR(10),
+    timestamp INTEGER,
     tax_id INTEGER,
     amount INTEGER,
     interest_rate INTEGER,
@@ -50,6 +51,7 @@ CREATE TABLE Accrue_Interest (
 CREATE TABLE Buy (
     transaction_id INTEGER PRIMARY KEY AUTOINCREMENT,
     transaction_date CHAR(10),
+    timestamp INTEGER,
     tax_id INTEGER,
     stock_symbol CHAR(4),
     shares INTEGER,
@@ -61,6 +63,7 @@ CREATE TABLE Buy (
 CREATE TABLE Sell (
     transaction_id INTEGER PRIMARY KEY AUTOINCREMENT,
     transaction_date CHAR(10),
+    timestamp INTEGER,
     tax_id INTEGER,
     stock_symbol CHAR(4),
     shares INTEGER,
@@ -74,14 +77,16 @@ CREATE TABLE Sell (
 CREATE TABLE Deposit (
     transaction_id INTEGER PRIMARY KEY AUTOINCREMENT,
     transaction_date CHAR(10),
+    timestamp INTEGER,
     tax_id INTEGER,
     amount INTEGER,
-    FOREIGN KEY (tax_id) REFERENCES Customer
+    FOREIGN KEY (tax_id) REFERENCES Customer,
 );
 
 CREATE TABLE Withdraw (
     transaction_id INTEGER PRIMARY KEY AUTOINCREMENT,
     transaction_date CHAR(10),
+    timestamp INTEGER,
     tax_id INTEGER,
     amount INTEGER,
     FOREIGN KEY (tax_id) REFERENCES Customer

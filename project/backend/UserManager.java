@@ -16,7 +16,7 @@ public class UserManager {
     }
 
     public boolean createTrader(Customer c) {
-        String[] tokens = new String[] {c.name, c.username, c.password, c.address, c.state, c.phone, c.email, String.valueOf(c.taxid), c.ssn, "(SELECT MAX(market_aid) + 1 FROM Customer)", "0"};
+        String[] tokens = new String[] {c.name, c.username, c.password, c.address, c.state, c.phone, c.email, String.valueOf(c.taxid), c.ssn};
         List<String> tokensWrapped = new ArrayList<String>();
         for (int i = 0; i < tokens.length; i++) {
             boolean isNumeric = tokens[i].chars().allMatch( Character::isDigit );
