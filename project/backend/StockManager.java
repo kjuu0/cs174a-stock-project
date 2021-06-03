@@ -15,6 +15,20 @@ public class StockManager {
         conn = c; 
     }
     
+    public boolean setStockPrice(final String symbol, final int value, final String date) {
+        final String UPDATE = "UPDATE Stock SET price=" + value + " WHERE stock_symbol=\"" + symbol + "\" AND date=\"" + date + "\"";
+
+        try {
+            Statement stmt = conn.createStatement();
+            stmt.executeUpdate(UPDATE);
+            return true;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage()); 
+        }
+        
+        return false;
+    }
+    
     public List<Stock> getStocksForDate(final String date) {
         List<Stock> stocks = new ArrayList<>();
         

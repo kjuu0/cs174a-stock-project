@@ -11,6 +11,25 @@ public class AuthManager {
     public AuthManager(Connection c) {
         this.conn = c;
     }
+    
+    public Customer getCustomer(final int taxid) {
+        final String QUERY = "SELECT * FROM Customer WHERE tax_id=" + taxid;
+
+        try {
+            Statement stmt = this.conn.createStatement();
+            ResultSet rs = stmt.executeQuery(QUERY);
+
+            if (!rs.next()) {
+                System.out.println("Did not find user"); 
+                return null;
+            } 
+            return new Customer(rs);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage()); 
+        }
+
+        return null;
+    }
 
     public Customer authenticateTrader(String username, String password) {
         final String QUERY = "SELECT * FROM Customer WHERE username=\"" + username +

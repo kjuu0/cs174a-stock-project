@@ -74,13 +74,161 @@ public class TraderShell {
                 case "dter":
                 listActiveCustomers();
                 break;
-
+                case "report":
+                promptCustomerReport();
+                break;
+                case "delete":
+                promptDeleteTransactions();
+                break;
+                case "open":
+                openMarket();
+                break;
+                case "close":
+                closeMarket();
+                break;
+                case "set_stock":
+                promptSetStockPrice();
+                break;
+                case "set_date":
+                promptSetDate();
+                break;
             }
             System.out.print("> ");
             cmd = input.nextLine();
         }
 
         input.close();
+    }
+    
+    public static void promptSetDate() {
+        if (!controller.isManager()) {
+            System.out.println("Must be a manager to set date");
+            return;
+        } 
+        
+        System.out.print("Enter the new date (YYYY/MM/DD): ");
+        final String date = input.nextLine();
+        if (date.length() != 10 || date.charAt(4) != '/' || date.charAt(7) != '/') {
+            System.out.println("invalid date format"); 
+        }
+
+        try {
+            int year = Integer.parseInt(date.substring(0, 4)); 
+            int month = Integer.parseInt(date.substring(5, 7));
+            int day = Integer.parseInt(date.substring(8));
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid date format");
+            return;
+        }
+        
+        if (controller.setDate(date)) {
+            System.out.println("Date successfully changed to " + date); 
+        } else {
+            System.out.println("Date was not changed"); 
+        }
+    }
+    
+    public static void promptSetStockPrice() {
+        if (!controller.isManager()) {
+            System.out.println("Must be a manager to set stock price"); 
+            return;
+        } 
+
+        System.out.print("Enter the stock symbol to change the price of: "); 
+        final String symbol = input.nextLine();
+        System.out.print("Enter the new price of " + symbol + "(ex. 4.24, 424, 4.20): $");
+
+        final String valueString = input.nextLine();
+        int decimalIndex = valueString.indexOf(".");
+        int value;
+        if (decimalIndex == -1) { //whole dollars
+            try {
+                value = Integer.parseInt(valueString) * 100;
+            } catch (NumberFormatException e) {
+                System.out.println("invalid amount format");
+                return;
+            }
+        } else {
+            try {
+                int dollars = Integer.parseInt(valueString.substring(0, decimalIndex));
+                int cents = Integer.parseInt(valueString.substring(decimalIndex + 1));
+                if (decimalIndex == valueString.length() - 2) {
+                    cents *= 10;
+                }
+                value = dollars * 100 + cents;
+            } catch (NumberFormatException e) {
+                System.out.println("invalid amount format");
+                return;
+            }
+        }
+       
+        if (value < 0) {
+            System.out.println("Cannot set a stock price to a negative amount");
+            return;
+        }
+        
+        if (controller.setStockPrice(symbol, value)) {
+            System.out.println("Successfully set stock price"); 
+        } else {
+            System.out.println("Failed to set stock price"); 
+        }
+    }
+
+    
+    public static void openMarket() {
+        if (controller.setMarketStatus(1)) {
+            System.out.println("Market opened"); 
+        }
+    }
+    
+    public static void closeMarket() {
+        if (controller.setMarketStatus(0)) {
+            System.out.println("Market closed");
+        } 
+    }
+    
+    public static void promptDeleteTransactions() {
+        if (!controller.isManager()) {
+            System.out.println("Must be a manager to delete transactions"); 
+            return;
+        }
+        System.out.print("Enter the tax id of the customer to clear transactions for: ");
+        final int taxid = input.nextInt();
+        
+        if (controller.deleteTransactions(taxid)) {
+            System.out.println("Transactions cleared for " + taxid); 
+        } else {
+            System.out.println("Transactions unsuccessfully cleared"); 
+        }
+    }
+    
+    public static void promptCustomerReport() {
+        Customer c;
+        if (controller.isManager()) {
+            System.out.print("Enter a customer tax id: "); 
+            final int taxid = input.nextInt();
+    
+            c = controller.getCustomer(taxid); 
+        } else if (controller.isLoggedIn()) {
+            c = controller.getCustomer(); 
+        } else {
+            System.out.println("Must be either a manager or logged in to a get a customer report"); 
+            return;
+        }
+        
+        System.out.println("---------- Customer Report ----------");
+        System.out.println(c);
+        final int marketBalance = controller.getBalance(c.taxid);
+        System.out.println(String.format("Market Account Balance: $%d.%02d", marketBalance / 100, marketBalance % 100));
+        System.out.println("Stock Account Holdings:");
+        List<StockAccountData> stockData = controller.getOwnedStocks(c.taxid);
+        for (StockAccountData d : stockData) {
+            System.out.println(String.format("%s: %dx", d.getSymbol(), d.getShares()));
+        }
+        final int stockBalance = controller.getStockAccountBalance(c.taxid);
+        System.out.println(String.format("Stock Account Balance: $%d.%02d", stockBalance / 100, stockBalance % 100));
+        final int totalBalance = marketBalance + stockBalance;
+        System.out.println(String.format("Total Balance: $%d.%02d", totalBalance / 100, totalBalance % 100));
     }
 
     public static void listDTER() {
@@ -206,6 +354,11 @@ public class TraderShell {
         // that stuff so we'll go for this manual merging for now. Can look into this later
         List<BuyTransaction> buys = controller.getStockBuyTransactions();
         List<SellTransaction> sells = controller.getStockSellTransactions();
+        
+        if (buys.isEmpty() && sells.isEmpty()) {
+            System.out.println("No stock transaction history");
+            return;
+        }
         
         int i = 0, j = 0;
         while (i < buys.size() && j < sells.size()) {

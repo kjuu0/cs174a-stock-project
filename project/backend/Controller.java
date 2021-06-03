@@ -31,7 +31,7 @@ public class Controller {
         this.user = null;
         try {
             // db parameters
-            String url = "jdbc:sqlite:/home/htransteven/ucsb/cs174a/cs174a-stock-project/project/db/datastore.db";
+            String url = "jdbc:sqlite:/home/kjuu/classes/cmpsc174a/cs174a-stock-project/project/db/datastore.db";
             // create a connection to the database
             this.conn = DriverManager.getConnection(url);
             
@@ -49,6 +49,65 @@ public class Controller {
         }
     }
 
+    public boolean setDate(final String date) {
+        List<Stock> currentStocks = stockManager.getStocksForDate(sysManager.getDate());
+     
+        try {
+            Statement stmt = conn.createStatement(); 
+            // Roll over currently available stocks to the new date
+            for (Stock s : currentStocks) {
+                stmt.addBatch("INSERT INTO Stock VALUES (\"" + s.getSymbol() + "\", \"" + date + "\", " + s.getPrice() + ")"); 
+            }
+            stmt.addBatch("UPDATE Sys_Info SET date=\"" + date + "\"");
+            stmt.executeBatch();
+            return true;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage()); 
+        }
+        
+        return false;
+    } 
+
+    public boolean setStockPrice(final String symbol, final int value) {
+        return stockManager.setStockPrice(symbol, value, sysManager.getDate()); 
+    }
+    
+    public List<StockAccountData> getOwnedStocks(int taxid) {
+        return saManager.getOwnedStocks(taxid); 
+    }
+    
+    public Customer getCustomer(final int taxid) {
+        return authManager.getCustomer(taxid);
+    }
+    
+    public Customer getCustomer() {
+        return isLoggedIn ? getCustomer(user.taxid) : null;
+    }
+    
+    public boolean deleteTransactions(int taxid) {
+        final String[] TABLES = new String[]{"Buy", "Sell", "Accrue_Interest", "Deposit", "Withdraw"};
+        try {
+            Statement stmt = conn.createStatement();
+            for (String table : TABLES) {
+                stmt.addBatch("DELETE FROM " + table + " WHERE tax_id=" + taxid); 
+            }
+            stmt.executeBatch();
+            return true;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return false;
+    }
+    
+    public boolean setMarketStatus(int status) {
+        if (!isManager) {
+            System.out.println("Must be a manager to update market status"); 
+            return false;
+        } 
+        
+        return sysManager.updateMarketStatus(status);
+    }
+    
     public void listDTER() {
         if (!isManager) {
             System.out.println("You are not authorized to use this command!");
@@ -313,6 +372,14 @@ public class Controller {
         return false;
     }
     
+    public List<StockAccountData> getStockAccountData(int taxid) {
+        return saManager.getStockAccountData(taxid);
+    }
+    
+    public int getStockAccountBalance(int taxid) {
+        return saManager.getStockAccountBalance(taxid); 
+    }
+    
     public List<StockAccountData> getStockAccountData() {
         if (!isLoggedIn) {
             System.out.println("Must be logged in to get stock account data");
@@ -476,7 +543,7 @@ public class Controller {
     }
     
     public void resetDatastore() {
-        String[] tablesToClear = new String[] {"Sys_Info", "Accrue_Interest", "Customer", "Deposit", "Owns_Stock", "Market_Account", "Buy", "Movie", 
+        String[] tablesToClear = new String[] {"Sys_Info", "Accrue_Interest", "Customer", "Deposit", "Owns_Stock", "Market_Account", "Buy", "Movie", "Manager", 
                 "Movie_Contract", "Stock", "Withdraw", "Sell", "Stock_Profile" };
 
         String transaction = "BEGIN TRANSACTION;\n";
@@ -500,7 +567,7 @@ public class Controller {
 
         try {
             // Read CSV file
-            Scanner sc = new Scanner(new File("/home/htransteven/ucsb/cs174a/cs174a-stock-project/project/db/data.csv"));
+            Scanner sc = new Scanner(new File("/home/kjuu/classes/cmpsc174a/cs174a-stock-project/project/db/data.csv"));
             sc.useDelimiter("\n");
             while (sc.hasNext()) {
                 String entry = sc.next();

@@ -50,6 +50,20 @@ public class SysManager {
 
         return false;
     }
+    
+    public boolean updateMarketStatus(int status) {
+        final String UPDATE = "UPDATE Sys_Info SET market_status=" + status; 
+
+        try {
+            Statement stmt = this.conn.createStatement();
+            stmt.executeUpdate(UPDATE);
+            return true;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return false;
+    }
 
     public float getInterestRate() {
         final String QUERY = "SELECT interest_rate FROM Sys_Info";
